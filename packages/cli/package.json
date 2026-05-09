@@ -10,7 +10,11 @@
     "bin": "repowiki",
     "dirname": "repowiki",
     "commands": "./dist/commands",
-    "plugins": ["@repowiki/plugin-wiki", "@repowiki/plugin-context", "@repowiki/plugin-spec"]
+    "plugins": [
+      "@repowiki/plugin-wiki",
+      "@repowiki/plugin-context",
+      "@repowiki/plugin-spec"
+    ]
   },
   "scripts": {
     "build": "tsup src/index.ts --format cjs --dts",
@@ -31,6 +35,13 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "keywords": ["ai", "cli", "wiki", "llm", "context", "repowiki"],
+  "keywords": [
+    "ai",
+    "cli",
+    "wiki",
+    "llm",
+    "context",
+    "repowiki"
+  ],
   "license": "MIT"
 }
