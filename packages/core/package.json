@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "tsup": "*",
-    "typescript": "*",
+    "typescript": "^5.6.0",
     "vitest": "*"
   }
 }
