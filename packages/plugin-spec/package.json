@@ -1,0 +1,30 @@
+{
+  "name": "@repowiki/plugin-spec",
+  "version": "0.0.1",
+  "description": "SDD/ATDD generation plugin for repowiki-cli",
+  "main": "./dist/index.js",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "oclif": {
+    "commands": "./dist/commands",
+    "bin": "repowiki"
+  },
+  "scripts": {
+    "build": "tsup src/commands/spec/sdd.ts src/commands/spec/atdd.ts src/commands/spec/review.ts --format cjs --dts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@oclif/core": "^4.0.0",
+    "@repowiki/core": "workspace:*"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}
