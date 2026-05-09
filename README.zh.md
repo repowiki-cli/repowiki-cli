@@ -11,6 +11,34 @@
 
 ---
 
+## 安装
+
+```bash
+npm install -g repowiki-cli
+```
+
+**前置要求：**
+- Node.js 20 或更高版本
+- 以下之一：OpenAI API key / Anthropic API key / 本地运行的 [Ollama](https://ollama.ai)
+
+## 快速上手
+
+```bash
+# 为当前仓库生成 wiki
+repowiki wiki generate --provider=openai
+
+# 生成 Claude Code 集成所需的 CLAUDE.md
+repowiki wiki generate --harness=claude-code
+
+# 验证 wiki 与代码库是否同步
+repowiki wiki validate
+
+# 查询上下文
+repowiki context query "认证模块是如何工作的"
+```
+
+---
+
 ## 问题：为什么大型项目会让 AI 失效
 
 大多数 AI 编码工具在单个文件或小型代码库上表现出色。一旦你扩展到真实世界的产品——多个代码仓库、数以千计的文件、数十个领域边界——这种承诺就会破灭。

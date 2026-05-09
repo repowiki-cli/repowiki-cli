@@ -11,6 +11,34 @@
 
 ---
 
+## Installation
+
+```bash
+npm install -g repowiki-cli
+```
+
+**Prerequisites:**
+- Node.js 20 or higher
+- One of: OpenAI API key / Anthropic API key / [Ollama](https://ollama.ai) running locally
+
+## Quick Start
+
+```bash
+# Generate wiki for current repository
+repowiki wiki generate --provider=openai
+
+# Generate CLAUDE.md for Claude Code integration
+repowiki wiki generate --harness=claude-code
+
+# Validate wiki is in sync with codebase
+repowiki wiki validate
+
+# Query context
+repowiki context query "how does authentication work"
+```
+
+---
+
 ## The Problem: Why Large Projects Break AI
 
 Most AI coding tools shine on single files or small repositories. The moment you scale to a real-world product — multiple repositories, thousands of files, dozens of domain boundaries — the promise falls apart.
