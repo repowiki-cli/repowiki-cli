@@ -14,7 +14,7 @@
     "bin": "repowiki"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format cjs --dts && tsup src/commands/context/index.ts src/commands/context/query.ts src/commands/context/serve.ts --format cjs --dts --out-dir dist/commands/context",
+    "build": "tsup src/index.ts --format cjs --dts --clean && tsup src/commands/context/index.ts src/commands/context/query.ts src/commands/context/serve.ts --format cjs --dts --out-dir dist/commands/context",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
