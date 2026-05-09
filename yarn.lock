@@ -847,7 +847,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@repowiki/plugin-context@workspace:packages/plugin-context":
+"@repowiki/plugin-context@workspace:*, @repowiki/plugin-context@workspace:packages/plugin-context":
   version: 0.0.0-use.local
   resolution: "@repowiki/plugin-context@workspace:packages/plugin-context"
   dependencies:
@@ -859,7 +859,19 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@repowiki/plugin-wiki@workspace:packages/plugin-wiki":
+"@repowiki/plugin-spec@workspace:*, @repowiki/plugin-spec@workspace:packages/plugin-spec":
+  version: 0.0.0-use.local
+  resolution: "@repowiki/plugin-spec@workspace:packages/plugin-spec"
+  dependencies:
+    "@oclif/core": "npm:^4.0.0"
+    "@repowiki/core": "workspace:*"
+    tsup: "npm:^8.3.0"
+    typescript: "npm:^5.6.0"
+    vitest: "npm:^2.1.0"
+  languageName: unknown
+  linkType: soft
+
+"@repowiki/plugin-wiki@workspace:*, @repowiki/plugin-wiki@workspace:packages/plugin-wiki":
   version: 0.0.0-use.local
   resolution: "@repowiki/plugin-wiki@workspace:packages/plugin-wiki"
   dependencies:
@@ -2492,6 +2504,22 @@ __metadata:
     tsup: "npm:^8.3.0"
     typescript: "npm:^5.6.0"
     vitest: "npm:^2.1.0"
+  languageName: unknown
+  linkType: soft
+
+"repowiki-cli@workspace:packages/cli":
+  version: 0.0.0-use.local
+  resolution: "repowiki-cli@workspace:packages/cli"
+  dependencies:
+    "@oclif/core": "npm:^4.0.0"
+    "@repowiki/plugin-context": "workspace:*"
+    "@repowiki/plugin-spec": "workspace:*"
+    "@repowiki/plugin-wiki": "workspace:*"
+    tsup: "npm:^8.3.0"
+    typescript: "npm:^5.6.0"
+    vitest: "npm:^2.1.0"
+  bin:
+    repowiki: ./bin/run.js
   languageName: unknown
   linkType: soft
 

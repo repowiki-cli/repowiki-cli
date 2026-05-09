@@ -14,7 +14,7 @@
     "bin": "repowiki"
   },
   "scripts": {
-    "build": "tsup src/commands/wiki/generate.ts src/commands/wiki/update.ts src/commands/wiki/validate.ts --format cjs --dts",
+    "build": "tsup src/index.ts --format cjs --dts && tsup src/commands/wiki/generate.ts src/commands/wiki/update.ts src/commands/wiki/validate.ts --format cjs --dts --out-dir dist/commands/wiki",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },

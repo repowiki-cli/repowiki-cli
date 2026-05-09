@@ -1,0 +1,47 @@
+{
+  "name": "repowiki-cli",
+  "version": "0.0.1",
+  "description": "AI-Native engineering toolkit for large-scale multi-repo projects",
+  "bin": {
+    "repowiki": "./bin/run.js"
+  },
+  "main": "./dist/index.js",
+  "oclif": {
+    "bin": "repowiki",
+    "dirname": "repowiki",
+    "commands": "./dist/commands",
+    "plugins": [
+      "@repowiki/plugin-wiki",
+      "@repowiki/plugin-context",
+      "@repowiki/plugin-spec"
+    ]
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs --dts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@oclif/core": "^4.0.0",
+    "@repowiki/plugin-context": "workspace:*",
+    "@repowiki/plugin-spec": "workspace:*",
+    "@repowiki/plugin-wiki": "workspace:*"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": [
+    "ai",
+    "cli",
+    "wiki",
+    "llm",
+    "context",
+    "repowiki"
+  ],
+  "license": "MIT"
+}
