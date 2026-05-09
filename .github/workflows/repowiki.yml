@@ -1,0 +1,36 @@
+name: Update RepoWiki
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'packages/**'
+
+permissions:
+  contents: write
+
+jobs:
+  wiki:
+    name: Update Wiki
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install repowiki-cli
+        id: install
+        run: npm install -g repowiki-cli
+        continue-on-error: true
+      - name: Update wiki
+        if: steps.install.outcome == 'success'
+        run: repowiki wiki update --provider=openai
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      - name: Commit wiki changes
+        if: steps.install.outcome == 'success'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update repowiki"
+          file_pattern: ".repowiki/**"
