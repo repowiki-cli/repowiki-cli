@@ -1,9 +1,9 @@
-import { describe, it, expect } from 'vitest'
-import SpecAtdd from '../atdd.js'
+import { describe, expect, it } from 'vitest';
+import SpecAtdd from '../atdd.js';
 
 describe('spec:atdd', () => {
   it('has a description', () => {
-    expect(SpecAtdd.description).toBeDefined()
-    expect(typeof SpecAtdd.description).toBe('string')
-  })
-})
+    expect(SpecAtdd.description).toBeDefined();
+    expect(typeof SpecAtdd.description).toBe('string');
+  });
+});

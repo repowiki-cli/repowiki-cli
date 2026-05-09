@@ -1,9 +1,9 @@
-import { Command, Flags } from '@oclif/core'
+import { Command, Flags } from '@oclif/core';
 
 export default class WikiGenerate extends Command {
-  static description = 'Analyze repo and produce layered wiki'
+  static description = 'Analyze repo and produce layered wiki';
 
-  static examples = ['<%= config.bin %> wiki generate --provider=openai']
+  static examples = ['<%= config.bin %> wiki generate --provider=openai'];
 
   static flags = {
     provider: Flags.string({
@@ -22,9 +22,9 @@ export default class WikiGenerate extends Command {
       description: 'Preview output without writing files',
       default: false,
     }),
-  }
+  };
 
   async run(): Promise<void> {
-    this.log('not yet implemented')
+    this.log('not yet implemented');
   }
 }
