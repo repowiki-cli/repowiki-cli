@@ -1,0 +1,30 @@
+{
+  "name": "@repowiki/plugin-context",
+  "version": "0.0.1",
+  "description": "Context routing plugin for repowiki-cli",
+  "main": "./dist/index.js",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "oclif": {
+    "commands": "./dist/commands",
+    "bin": "repowiki"
+  },
+  "scripts": {
+    "build": "tsup src/commands/context/index.ts src/commands/context/query.ts src/commands/context/serve.ts --format cjs --dts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@oclif/core": "^4.0.0",
+    "@repowiki/core": "workspace:*"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}
