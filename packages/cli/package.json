@@ -17,7 +17,7 @@
     ]
   },
   "scripts": {
-    "build": "tsup src/index.ts --format cjs --dts",
+    "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },

@@ -14,7 +14,7 @@
     "bin": "repowiki"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format cjs --dts --clean && tsup src/commands/spec/sdd.ts src/commands/spec/atdd.ts src/commands/spec/review.ts --format cjs --dts --out-dir dist/commands/spec",
+    "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
