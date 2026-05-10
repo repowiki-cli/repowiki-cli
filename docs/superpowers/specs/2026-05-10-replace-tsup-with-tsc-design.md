@@ -39,7 +39,7 @@ All five packages follow the same pattern:
 
 ### `tsconfig.json` (each package)
 
-Add `exclude` to prevent test files from being compiled into `dist/`:
+Add the `exclude` field to prevent test files from being compiled into `dist/` (do not replace the entire file — only add this field):
 
 ```json
 {
@@ -53,7 +53,9 @@ Add `exclude` to prevent test files from being compiled into `dist/`:
 }
 ```
 
-The same `tsconfig.json` is used by both `build` and `typecheck` (`tsc --noEmit`). No separate `tsconfig.build.json` needed.
+The same `tsconfig.json` is used by both `build` (`tsc -p tsconfig.json`) and `typecheck` (`tsc --noEmit`). No separate `tsconfig.build.json` needed.
+
+**Trade-off:** Adding `exclude` means `tsc --noEmit` will no longer type-check test files. This is acceptable — test files import vitest types and are already excluded from the compile output. Vitest itself performs module resolution validation at test runtime. Do not add a separate `tsconfig.test.json` to work around this.
 
 ### `package.json` (each package)
 
@@ -90,16 +92,25 @@ Remove `tsup` from `devDependencies`.
 packages/plugin-wiki/dist/
 ├── index.js          ← barrel (oclif plugin main entry)
 ├── index.d.ts
+├── index.d.ts.map
 ├── index.js.map
 └── commands/
     └── wiki/
         ├── generate.js   ← oclif scans this directory
         ├── generate.d.ts
+        ├── generate.d.ts.map
+        ├── generate.js.map
         ├── update.js
         ├── update.d.ts
+        ├── update.d.ts.map
+        ├── update.js.map
         ├── validate.js
-        └── validate.d.ts
+        ├── validate.d.ts
+        ├── validate.d.ts.map
+        └── validate.js.map
 ```
+
+`tsc` emits `.js.map` (source maps) and `.d.ts.map` (declaration maps) alongside every file because `sourceMap: true` and `declarationMap: true` are set in `tsconfig.base.json`. This is expected and intentional — no change needed.
 
 Oclif's `"commands": "./dist/commands"` scanner finds all command files automatically.
 
@@ -113,6 +124,23 @@ Oclif's `"commands": "./dist/commands"` scanner finds all command files automati
 - `bin/run.js` in `packages/cli` — unchanged
 - `biome.json`, CI workflows, test scripts — unchanged
 - `.gitignore` already excludes `dist/` — unchanged
+
+---
+
+## Implementation order
+
+Changes must be applied in this order to avoid build failures:
+
+1. Update `build` script in each package's `package.json` (tsup → tsc)
+2. Add `"exclude": ["src/**/__tests__/**"]` to each package's `tsconfig.json`
+3. Remove `tsup` from `devDependencies` in all packages and root
+4. Run `yarn install` (locks out tsup)
+5. Run `rm -rf packages/*/dist` (clear stale tsup output before verification)
+6. Run verification commands
+
+**Do not run `yarn install` before step 3**, and do not remove tsup devDependencies before updating the build scripts — an intermediate `yarn build` would fail.
+
+Step 5 (`rm -rf`) ensures the verification build starts from a clean slate with no artifacts from the previous tsup output format.
 
 ---
 
