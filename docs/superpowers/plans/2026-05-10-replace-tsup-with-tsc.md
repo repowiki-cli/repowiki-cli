@@ -298,10 +298,10 @@ Expected: lockfile updated, no errors. `node_modules/tsup` directory should no l
 
 Verify:
 ```bash
-ls node_modules/tsup 2>/dev/null || echo "tsup removed"
+yarn why tsup 2>&1 | head -3
 ```
 
-Expected output: `tsup removed`
+Expected: error output containing `No package named "tsup"` or similar. If tsup is still resolvable, it was not fully removed from all `devDependencies`.
 
 - [ ] **Step 8: Commit**
 
@@ -332,13 +332,7 @@ This ensures the verification build starts clean with no artifacts from the prev
 yarn build
 ```
 
-Expected: all 5 packages build with zero errors. Each package prints tsc output similar to:
-```
-packages/core: tsc -p tsconfig.json
-packages/plugin-wiki: tsc -p tsconfig.json
-...
-Done in Xs
-```
+Expected: all 5 packages build with zero errors and the final line is `Done in Xs`. tsc itself prints nothing on success — Yarn's workspace runner prefixes lines with the package name (exact format varies). The key indicator is zero errors and a clean exit.
 
 - [ ] **Step 3: Verify dist structure — no __tests__ directories**
 
@@ -412,11 +406,21 @@ ls node_modules/tsup 2>/dev/null || echo "tsup not installed"
 
 Expected: `tsup not installed`
 
-- [ ] **Step 10: Commit**
+- [ ] **Step 10: Commit (only if changes exist)**
 
+Check if there is anything to commit:
 ```bash
-git add .
+git status
+```
+
+If `git status` reports a clean working tree, skip this step — verification tasks produce no file changes by design.
+
+If there are staged or modified files (e.g., a `.tsbuildinfo` file was generated), stage and commit them:
+```bash
+git add packages/core/tsconfig.tsbuildinfo packages/cli/tsconfig.tsbuildinfo \
+        packages/plugin-wiki/tsconfig.tsbuildinfo packages/plugin-context/tsconfig.tsbuildinfo \
+        packages/plugin-spec/tsconfig.tsbuildinfo
 git commit -m "build: verify tsc migration complete — all checks passing"
 ```
 
-If working tree is clean (nothing changed in verification), skip this commit and proceed.
+Note: `.tsbuildinfo` files are gitignored (`*.tsbuildinfo` in `.gitignore`), so they will not appear as untracked. The working tree will almost certainly be clean at this point.
