@@ -113,3 +113,91 @@ describe('GeneratePipeline', () => {
     expect(vi.mocked(mockProvider.complete).mock.calls.length).toBeGreaterThan(0);
   });
 });
+
+import { ValidatePipeline } from '../ValidatePipeline.js';
+import type { Manifest } from '../../types.js';
+import { ManifestManager } from '../../backends/ManifestManager.js';
+
+describe('ValidatePipeline', () => {
+  let tmpDir: string;
+  let outputDir: string;
+
+  beforeEach(async () => {
+    tmpDir = await makeTmpDir();
+    outputDir = path.join(tmpDir, '.repowiki');
+    await mkdir(outputDir, { recursive: true });
+    await createFixtureRepo(tmpDir);
+  });
+
+  afterEach(async () => {
+    await rm(tmpDir, { recursive: true, force: true });
+  });
+
+  it('exits 1 when manifest does not exist', async () => {
+    const pipeline = new ValidatePipeline();
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => {}) as never);
+    await pipeline.run({ repoPath: tmpDir, outputPath: outputDir });
+    expect(exitSpy).toHaveBeenCalledWith(1);
+    exitSpy.mockRestore();
+  });
+
+  it('exits 0 when manifest matches current source files', async () => {
+    const mgr = new ManifestManager(outputDir);
+    const { TypeScriptAnalyzer } = await import('../../analyzers/typescript/TypeScriptAnalyzer.js');
+    const analyzer = new TypeScriptAnalyzer();
+    const files = await analyzer.discoverFiles(tmpDir);
+    const manifestFiles: Manifest['files'] = {};
+    for (const f of files) {
+      const hash = await mgr.computeHash(path.join(tmpDir, f));
+      manifestFiles[f] = { hash, wikiPath: '' };
+    }
+    await mgr.save({ version: 1, generatedAt: new Date().toISOString(), provider: 'test', files: manifestFiles });
+
+    const pipeline = new ValidatePipeline();
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => {}) as never);
+    await pipeline.run({ repoPath: tmpDir, outputPath: outputDir });
+    expect(exitSpy).toHaveBeenCalledWith(0);
+    exitSpy.mockRestore();
+  });
+
+  it('exits 1 and reports stale when a file changes', async () => {
+    const mgr = new ManifestManager(outputDir);
+    const { TypeScriptAnalyzer } = await import('../../analyzers/typescript/TypeScriptAnalyzer.js');
+    const analyzer = new TypeScriptAnalyzer();
+    const files = await analyzer.discoverFiles(tmpDir);
+    const manifestFiles: Manifest['files'] = {};
+    for (const f of files) {
+      manifestFiles[f] = { hash: 'sha256:old-hash', wikiPath: '' };
+    }
+    await mgr.save({ version: 1, generatedAt: new Date().toISOString(), provider: 'test', files: manifestFiles });
+
+    const pipeline = new ValidatePipeline();
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => {}) as never);
+    const stdoutSpy = vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
+    await pipeline.run({ repoPath: tmpDir, outputPath: outputDir });
+    expect(exitSpy).toHaveBeenCalledWith(1);
+    expect(stdoutSpy.mock.calls.some((args) => String(args[0]).includes('stale'))).toBe(true);
+    exitSpy.mockRestore();
+    stdoutSpy.mockRestore();
+  });
+
+  it('exits 1 and reports new file when a new file is added', async () => {
+    const mgr = new ManifestManager(outputDir);
+    const indexHash = await mgr.computeHash(path.join(tmpDir, 'src/index.ts'));
+    await mgr.save({
+      version: 1,
+      generatedAt: new Date().toISOString(),
+      provider: 'test',
+      files: { 'src/index.ts': { hash: indexHash, wikiPath: '' } },
+    });
+
+    const pipeline = new ValidatePipeline();
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => {}) as never);
+    const stdoutSpy = vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
+    await pipeline.run({ repoPath: tmpDir, outputPath: outputDir });
+    expect(exitSpy).toHaveBeenCalledWith(1);
+    expect(stdoutSpy.mock.calls.some((args) => String(args[0]).includes('new'))).toBe(true);
+    exitSpy.mockRestore();
+    stdoutSpy.mockRestore();
+  });
+});
