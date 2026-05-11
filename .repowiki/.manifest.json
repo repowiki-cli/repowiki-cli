@@ -1,0 +1,123 @@
+{
+  "version": 1,
+  "generatedAt": "2026-05-11T10:31:36.593Z",
+  "provider": "dashscope",
+  "files": {
+    "packages/cli/bin/run.js": {
+      "hash": "sha256:0dd83f57604d6497c54f80d16a49b66eba7126d238f3a5b3807f49c19c0719d6",
+      "wikiPath": ".repowiki/repowiki-cli/bin/run.md"
+    },
+    "packages/cli/src/index.ts": {
+      "hash": "sha256:e3264d1fa329056871c0cc6dc413995ac4c613684b320f991baf2625c5faaedd",
+      "wikiPath": ".repowiki/repowiki-cli/src/index.md"
+    },
+    "packages/core/src/index.ts": {
+      "hash": "sha256:1b3284e8ebd136e1b40976c4d32124e5cb7e0f7bf72a818f07665b2c0d880366",
+      "wikiPath": ".repowiki/core/src/index.md"
+    },
+    "packages/plugin-context/src/index.ts": {
+      "hash": "sha256:d994e84d6b6359ad75fe22376c45f3cbc5c6eff51d7f717a70132bbcfa74642d",
+      "wikiPath": ".repowiki/plugin-context/src/index.md"
+    },
+    "packages/plugin-context/src/commands/context/index.ts": {
+      "hash": "sha256:06102ce08697dfb9ac94b99d87862b577872b241e2972b0d03ba8777368f867b",
+      "wikiPath": ".repowiki/plugin-context/src/commands/context/index.md"
+    },
+    "packages/plugin-context/src/commands/context/query.ts": {
+      "hash": "sha256:1189b016b1a0c4961e9d1a853726867e131a9ce4e0fab09e8fe7ec1ad4d99c80",
+      "wikiPath": ".repowiki/plugin-context/src/commands/context/query.md"
+    },
+    "packages/plugin-context/src/commands/context/serve.ts": {
+      "hash": "sha256:8f9bf318c194cefa98f2720a3e5de2fc544be23581fb5f7dafad382d5fa40c42",
+      "wikiPath": ".repowiki/plugin-context/src/commands/context/serve.md"
+    },
+    "packages/plugin-spec/src/index.ts": {
+      "hash": "sha256:5cbb626b9120845f915fd9f0eadefa02ff80bc557f4631d0c16234a17e56dca5",
+      "wikiPath": ".repowiki/plugin-spec/src/index.md"
+    },
+    "packages/plugin-spec/src/commands/spec/atdd.ts": {
+      "hash": "sha256:973603a0b2fab71cdccb296aed8bc7275bd0f98859d98e704e1ac52eaf94e765",
+      "wikiPath": ".repowiki/plugin-spec/src/commands/spec/atdd.md"
+    },
+    "packages/plugin-spec/src/commands/spec/review.ts": {
+      "hash": "sha256:7851c98d2bfeba9118f8f758979ed49690477a78451746de07e295ad1018b860",
+      "wikiPath": ".repowiki/plugin-spec/src/commands/spec/review.md"
+    },
+    "packages/plugin-spec/src/commands/spec/sdd.ts": {
+      "hash": "sha256:8e460e0d58cedc8854d74d579cf5b221d8259a2c1dc1ac604e77b989dd307985",
+      "wikiPath": ".repowiki/plugin-spec/src/commands/spec/sdd.md"
+    },
+    "packages/plugin-wiki/src/index.ts": {
+      "hash": "sha256:7ef32c3ce453444da42df0a65eba99d029a17419f4a73c0df35691f8b651f4ee",
+      "wikiPath": ".repowiki/plugin-wiki/src/index.md"
+    },
+    "packages/plugin-wiki/src/types.ts": {
+      "hash": "sha256:cdf675d1f2f1de13df42c72ad7b779441cab410206a728974cc6490039ef35cb",
+      "wikiPath": ".repowiki/plugin-wiki/src/types.md"
+    },
+    "packages/plugin-wiki/src/backends/LocalMarkdownBackend.ts": {
+      "hash": "sha256:fa792dbae4dbf4de9064877e8556e994c372ad5698b895af387580859f89bab7",
+      "wikiPath": ".repowiki/plugin-wiki/src/backends/LocalMarkdownBackend.md"
+    },
+    "packages/plugin-wiki/src/backends/ManifestManager.ts": {
+      "hash": "sha256:b51ffcaefeb2d2113190ed0cb8f076f21456800825c0fe0a6cf0415573a7c6be",
+      "wikiPath": ".repowiki/plugin-wiki/src/backends/ManifestManager.md"
+    },
+    "packages/plugin-wiki/src/harness/ClaudeCodeHarness.ts": {
+      "hash": "sha256:646e17a8d03daca1232278f17df789938eae8119e22251f6078c4d273feb3dfe",
+      "wikiPath": ".repowiki/plugin-wiki/src/harness/ClaudeCodeHarness.md"
+    },
+    "packages/plugin-wiki/src/harness/CursorHarness.ts": {
+      "hash": "sha256:c266ac04093655f607ba37e0022db8a2c59232a6498a218ee677cf1028b7882c",
+      "wikiPath": ".repowiki/plugin-wiki/src/harness/CursorHarness.md"
+    },
+    "packages/plugin-wiki/src/harness/HarnessWriter.ts": {
+      "hash": "sha256:d440133a0aba42e4693b88756a2307b326d0d4905b4cc04ed6fcffa50be4d9f4",
+      "wikiPath": ".repowiki/plugin-wiki/src/harness/HarnessWriter.md"
+    },
+    "packages/plugin-wiki/src/pipeline/GeneratePipeline.ts": {
+      "hash": "sha256:c5a526d31c21331300568b66d6bb413d96afe916cad69b838d3f76a7f939ddb4",
+      "wikiPath": ".repowiki/plugin-wiki/src/pipeline/GeneratePipeline.md"
+    },
+    "packages/plugin-wiki/src/pipeline/ValidatePipeline.ts": {
+      "hash": "sha256:7129621fb6f65721ac362c5746f991ffb359f6b8a6b152eaecaec18d991a42cb",
+      "wikiPath": ".repowiki/plugin-wiki/src/pipeline/ValidatePipeline.md"
+    },
+    "packages/plugin-wiki/src/providers/AnthropicProvider.ts": {
+      "hash": "sha256:372bc9ce8c2c0b0b91dc0498be9b6f4bab9be4fa0263cecb4e395117b6e3ba33",
+      "wikiPath": ".repowiki/plugin-wiki/src/providers/AnthropicProvider.md"
+    },
+    "packages/plugin-wiki/src/providers/AzureOpenAIProvider.ts": {
+      "hash": "sha256:ee4bf89be71d2aa1dc667b401f8be0f26512a98e71399526625b973f18c2d255",
+      "wikiPath": ".repowiki/plugin-wiki/src/providers/AzureOpenAIProvider.md"
+    },
+    "packages/plugin-wiki/src/providers/OpenAIProvider.ts": {
+      "hash": "sha256:1e9cb0e31570c0197b746a38b5109c6b263c8caa34f10113d14d0d2800d1cb3e",
+      "wikiPath": ".repowiki/plugin-wiki/src/providers/OpenAIProvider.md"
+    },
+    "packages/plugin-wiki/src/providers/createProvider.ts": {
+      "hash": "sha256:8b7fee79f01901168db6849e83ebf75e9e81944ad98a0647d2db404afa8787c4",
+      "wikiPath": ".repowiki/plugin-wiki/src/providers/createProvider.md"
+    },
+    "packages/plugin-wiki/src/analyzers/typescript/TypeScriptAnalyzer.ts": {
+      "hash": "sha256:053983bb877c2b1f36a93b75140e1d966ac1381c4096833c731ccbbe26b126b7",
+      "wikiPath": ".repowiki/plugin-wiki/src/analyzers/typescript/TypeScriptAnalyzer.md"
+    },
+    "packages/plugin-wiki/src/analyzers/typescript/queries.ts": {
+      "hash": "sha256:3960574ebc7a01637b5cf18d618ffbc5778506b2f16da3f0c4f80159d78a9039",
+      "wikiPath": ".repowiki/plugin-wiki/src/analyzers/typescript/queries.md"
+    },
+    "packages/plugin-wiki/src/commands/wiki/generate.ts": {
+      "hash": "sha256:7563db088b66ff9fb49fb5bdb419f43280d9be25fb621e913078bfec3aeb05e2",
+      "wikiPath": ".repowiki/plugin-wiki/src/commands/wiki/generate.md"
+    },
+    "packages/plugin-wiki/src/commands/wiki/update.ts": {
+      "hash": "sha256:82917bb8aebc4dc2a06962a25eabd1e4902c6b0526b49b87d4cc7babde84bfd1",
+      "wikiPath": ".repowiki/plugin-wiki/src/commands/wiki/update.md"
+    },
+    "packages/plugin-wiki/src/commands/wiki/validate.ts": {
+      "hash": "sha256:b8199cdecf4458e4fa8b084b60cd1c7103ed67db37518f8ec3da4af4ce4a658e",
+      "wikiPath": ".repowiki/plugin-wiki/src/commands/wiki/validate.md"
+    }
+  }
+}
