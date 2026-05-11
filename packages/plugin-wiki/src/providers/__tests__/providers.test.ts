@@ -1,14 +1,16 @@
 import { describe, expect, it, vi } from 'vitest';
 
-// --- OpenAIProvider mock ---
+// --- OpenAIProvider / AzureOpenAIProvider mock ---
 vi.mock('openai', () => {
   const mockCreate = vi.fn().mockResolvedValue({
     choices: [{ message: { content: 'openai response' } }],
   });
+  const MockClient = vi.fn().mockImplementation(() => ({
+    chat: { completions: { create: mockCreate } },
+  }));
   return {
-    default: vi.fn().mockImplementation(() => ({
-      chat: { completions: { create: mockCreate } },
-    })),
+    default: MockClient,
+    AzureOpenAI: MockClient,
     __mockCreate: mockCreate,
   };
 });
@@ -27,8 +29,9 @@ vi.mock('@anthropic-ai/sdk', () => {
 });
 
 import Anthropic from '@anthropic-ai/sdk';
-import OpenAI from 'openai';
+import OpenAI, { AzureOpenAI } from 'openai';
 import { AnthropicProvider } from '../AnthropicProvider.js';
+import { AzureOpenAIProvider } from '../AzureOpenAIProvider.js';
 import { OpenAIProvider } from '../OpenAIProvider.js';
 import { createProvider } from '../createProvider.js';
 
@@ -103,12 +106,42 @@ describe('AnthropicProvider', () => {
   });
 });
 
+describe('AzureOpenAIProvider', () => {
+  it('calls chat.completions.create with correct params', async () => {
+    const provider = new AzureOpenAIProvider({
+      apiKey: 'test-key',
+      endpoint: 'https://my-resource.openai.azure.com',
+      model: 'gpt-4o-mini',
+    });
+    const result = await provider.complete([{ role: 'user', content: 'Hello' }]);
+    expect(result).toBe('openai response');
+  });
+
+  it('uses AzureOpenAI constructor with endpoint and apiVersion', () => {
+    new AzureOpenAIProvider({
+      apiKey: 'k',
+      endpoint: 'https://my-resource.openai.azure.com',
+      apiVersion: '2024-05-01-preview',
+      model: 'gpt-4o',
+    });
+    const MockAzure = vi.mocked(AzureOpenAI);
+    const lastCall = MockAzure.mock.calls[MockAzure.mock.calls.length - 1];
+    expect((lastCall[0] as { endpoint?: string }).endpoint).toBe(
+      'https://my-resource.openai.azure.com',
+    );
+    expect((lastCall[0] as { apiVersion?: string }).apiVersion).toBe('2024-05-01-preview');
+  });
+});
+
 describe('createProvider', () => {
   it('openai key → OpenAIProvider', () => {
     expect(createProvider('openai', { apiKey: 'k' })).toBeInstanceOf(OpenAIProvider);
   });
   it('anthropic key → AnthropicProvider', () => {
     expect(createProvider('anthropic', { apiKey: 'k' })).toBeInstanceOf(AnthropicProvider);
+  });
+  it('azure key → AzureOpenAIProvider', () => {
+    expect(createProvider('azure', { apiKey: 'k' })).toBeInstanceOf(AzureOpenAIProvider);
   });
   it('ollama key → OpenAIProvider', () => {
     expect(createProvider('ollama', {})).toBeInstanceOf(OpenAIProvider);

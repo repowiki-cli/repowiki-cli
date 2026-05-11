@@ -9,13 +9,15 @@ export default class WikiGenerate extends Command {
   static examples = [
     '<%= config.bin %> wiki generate --provider=openai',
     '<%= config.bin %> wiki generate --provider=anthropic --harness=claude-code',
+    '<%= config.bin %> wiki generate --provider=dashscope --harness=claude-code',
+    '<%= config.bin %> wiki generate --provider=azure --model=my-deployment --harness=claude-code',
     '<%= config.bin %> wiki generate --provider=ollama --model=llama3 --dry-run',
   ];
 
   static flags = {
     provider: Flags.string({
       description:
-        'LLM provider: openai | anthropic | ollama | dashscope | deepseek | openai-compat:URL',
+        'LLM provider: openai | anthropic | azure | ollama | dashscope | deepseek | openai-compat:URL',
       required: true,
     }),
     harness: Flags.string({

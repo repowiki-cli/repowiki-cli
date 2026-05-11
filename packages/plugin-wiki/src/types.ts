@@ -24,6 +24,10 @@ export interface ProviderOptions {
   model?: string;
   apiKey?: string;
   baseURL?: string;
+  /** Azure OpenAI resource endpoint, e.g. https://{resource}.openai.azure.com */
+  endpoint?: string;
+  /** Azure OpenAI API version (default: 2024-02-01) */
+  apiVersion?: string;
 }
 
 export interface GenerateOptions {

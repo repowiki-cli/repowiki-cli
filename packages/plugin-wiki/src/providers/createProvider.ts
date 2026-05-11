@@ -1,11 +1,13 @@
 import type { LLMProvider } from '@repowiki/core';
 import type { ProviderOptions } from '../types.js';
 import { AnthropicProvider } from './AnthropicProvider.js';
+import { AzureOpenAIProvider } from './AzureOpenAIProvider.js';
 import { OpenAIProvider } from './OpenAIProvider.js';
 
 const PROVIDER_DEFAULTS: Record<string, { model: string; baseURL?: string; envKey?: string }> = {
   openai: { model: 'gpt-4o-mini', envKey: 'OPENAI_API_KEY' },
   anthropic: { model: 'claude-haiku-4-5-20251001', envKey: 'ANTHROPIC_API_KEY' },
+  azure: { model: 'gpt-4o-mini', envKey: 'AZURE_OPENAI_API_KEY' },
   ollama: { model: 'llama3', baseURL: 'http://localhost:11434/v1' },
   dashscope: {
     model: 'qwen-turbo',
@@ -41,6 +43,15 @@ export function createProvider(key: string, opts: ProviderOptions): LLMProvider 
 
   if (key === 'anthropic') {
     return new AnthropicProvider({ apiKey: resolvedApiKey, model: resolvedModel });
+  }
+
+  if (key === 'azure') {
+    return new AzureOpenAIProvider({
+      apiKey: resolvedApiKey,
+      model: resolvedModel,
+      endpoint: opts.endpoint,
+      apiVersion: opts.apiVersion,
+    });
   }
 
   return new OpenAIProvider({
