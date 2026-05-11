@@ -1,7 +1,7 @@
 import * as path from 'node:path';
-import type { ValidateOptions } from '../types.js';
 import { TypeScriptAnalyzer } from '../analyzers/typescript/TypeScriptAnalyzer.js';
 import { ManifestManager } from '../backends/ManifestManager.js';
+import type { ValidateOptions } from '../types.js';
 
 export class ValidatePipeline {
   async run(opts: ValidateOptions): Promise<void> {
@@ -45,10 +45,14 @@ export class ValidatePipeline {
       process.stdout.write(`stale (${stale.length}):\n${stale.map((f) => `  ${f}`).join('\n')}\n`);
     }
     if (newFiles.length > 0) {
-      process.stdout.write(`new (${newFiles.length}):\n${newFiles.map((f) => `  ${f}`).join('\n')}\n`);
+      process.stdout.write(
+        `new (${newFiles.length}):\n${newFiles.map((f) => `  ${f}`).join('\n')}\n`,
+      );
     }
     if (deleted.length > 0) {
-      process.stdout.write(`deleted (${deleted.length}):\n${deleted.map((f) => `  ${f}`).join('\n')}\n`);
+      process.stdout.write(
+        `deleted (${deleted.length}):\n${deleted.map((f) => `  ${f}`).join('\n')}\n`,
+      );
     }
     process.exit(1);
   }

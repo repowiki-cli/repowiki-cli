@@ -1,5 +1,5 @@
-import OpenAI from 'openai';
 import type { ChatMessage, LLMProvider } from '@repowiki/core';
+import OpenAI from 'openai';
 import type { ProviderOptions } from '../types.js';
 
 export class OpenAIProvider implements LLMProvider {

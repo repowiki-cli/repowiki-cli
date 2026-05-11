@@ -26,10 +26,10 @@ vi.mock('@anthropic-ai/sdk', () => {
   };
 });
 
-import OpenAI from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
-import { OpenAIProvider } from '../OpenAIProvider.js';
+import OpenAI from 'openai';
 import { AnthropicProvider } from '../AnthropicProvider.js';
+import { OpenAIProvider } from '../OpenAIProvider.js';
 import { createProvider } from '../createProvider.js';
 
 describe('OpenAIProvider', () => {
@@ -40,7 +40,11 @@ describe('OpenAIProvider', () => {
       { role: 'user', content: 'Hello' },
     ]);
     expect(result).toBe('openai response');
-    const MockOpenAI = OpenAI as unknown as { mock: { results: { value: { chat: { completions: { create: ReturnType<typeof vi.fn> } } } }[] } };
+    const MockOpenAI = OpenAI as unknown as {
+      mock: {
+        results: { value: { chat: { completions: { create: ReturnType<typeof vi.fn> } } } }[];
+      };
+    };
     const mockInstance = MockOpenAI.mock.results[0].value;
     expect(mockInstance.chat.completions.create).toHaveBeenCalledWith({
       model: 'gpt-4o-mini',
@@ -62,13 +66,18 @@ describe('OpenAIProvider', () => {
 
 describe('AnthropicProvider', () => {
   it('calls messages.create with correct params', async () => {
-    const provider = new AnthropicProvider({ apiKey: 'test-key', model: 'claude-haiku-4-5-20251001' });
+    const provider = new AnthropicProvider({
+      apiKey: 'test-key',
+      model: 'claude-haiku-4-5-20251001',
+    });
     const result = await provider.complete([
       { role: 'system', content: 'You are helpful.' },
       { role: 'user', content: 'Hello' },
     ]);
     expect(result).toBe('anthropic response');
-    const MockAnthropic = Anthropic as unknown as { mock: { results: { value: { messages: { create: ReturnType<typeof vi.fn> } } }[] } };
+    const MockAnthropic = Anthropic as unknown as {
+      mock: { results: { value: { messages: { create: ReturnType<typeof vi.fn> } } }[] };
+    };
     const mockInstance = MockAnthropic.mock.results[0].value;
     expect(mockInstance.messages.create).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -80,7 +89,10 @@ describe('AnthropicProvider', () => {
   });
 
   it('throws when a second system message appears in non-first position', async () => {
-    const provider = new AnthropicProvider({ apiKey: 'test-key', model: 'claude-haiku-4-5-20251001' });
+    const provider = new AnthropicProvider({
+      apiKey: 'test-key',
+      model: 'claude-haiku-4-5-20251001',
+    });
     await expect(
       provider.complete([
         { role: 'system', content: 'First system' },
@@ -108,7 +120,9 @@ describe('createProvider', () => {
     expect(createProvider('deepseek', { apiKey: 'k' })).toBeInstanceOf(OpenAIProvider);
   });
   it('openai-compat:URL key → OpenAIProvider', () => {
-    expect(createProvider('openai-compat:http://my-server/v1', { apiKey: 'k' })).toBeInstanceOf(OpenAIProvider);
+    expect(createProvider('openai-compat:http://my-server/v1', { apiKey: 'k' })).toBeInstanceOf(
+      OpenAIProvider,
+    );
   });
   it('unknown key throws', () => {
     expect(() => createProvider('unknown', {})).toThrow('Unknown provider');

@@ -2,7 +2,7 @@ import Parser from 'tree-sitter';
 import type { ExportEntry } from '../../types.js';
 
 // Use any for SyntaxNode to avoid complex type extraction
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// biome-ignore lint/suspicious/noExplicitAny: tree-sitter types not exported
 type SyntaxNode = any;
 
 // Load tree-sitter-typescript via CJS require (package ships no ESM)
@@ -15,11 +15,11 @@ const { typescript: TSLanguage, tsx: TSXLanguage } = (() => {
 })();
 
 const tsParser = new Parser();
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// biome-ignore lint/suspicious/noExplicitAny: tree-sitter types not exported
 tsParser.setLanguage(TSLanguage as any);
 
 const tsxParser = new Parser();
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// biome-ignore lint/suspicious/noExplicitAny: tree-sitter types not exported
 tsxParser.setLanguage(TSXLanguage as any);
 
 function kindFromNodeType(type: string): ExportEntry['kind'] | null {

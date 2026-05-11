@@ -55,7 +55,8 @@ export default class WikiGenerate extends Command {
     const outputPath = path.resolve(repoPath, rawOutput);
 
     // Path traversal guard
-    if (!outputPath.startsWith(path.resolve(repoPath))) {
+    const resolvedRoot = path.resolve(repoPath);
+    if (!outputPath.startsWith(resolvedRoot + path.sep) && outputPath !== resolvedRoot) {
       this.error('--output must be inside the repo root');
     }
 

@@ -1,5 +1,5 @@
-import type { WikiNode } from '@repowiki/core';
 import * as nodePath from 'node:path';
+import type { WikiNode } from '@repowiki/core';
 
 export type NodeType = 'project' | 'package' | 'directory' | 'module';
 

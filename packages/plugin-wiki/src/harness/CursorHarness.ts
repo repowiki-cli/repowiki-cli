@@ -9,9 +9,7 @@ export class CursorHarness implements HarnessGenerator {
 
   generate(root: AnalyzedNode): string {
     const modules = collectNodes(root, 'module').sort((a, b) => a.path.localeCompare(b.path));
-    const rows = modules
-      .map((m) => `| \`${m.path}\` | ${m.summary.split('.')[0]}.  |`)
-      .join('\n');
+    const rows = modules.map((m) => `| \`${m.path}\` | ${m.summary.split('.')[0]}.  |`).join('\n');
 
     return `# RepoWiki Context
 

@@ -29,6 +29,6 @@ export class ManifestManager {
 
   async computeHash(filePath: string): Promise<string> {
     const content = await readFile(filePath);
-    return 'sha256:' + createHash('sha256').update(content).digest('hex');
+    return `sha256:${createHash('sha256').update(content).digest('hex')}`;
   }
 }

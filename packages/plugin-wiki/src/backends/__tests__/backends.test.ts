@@ -4,8 +4,8 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { Manifest } from '../../types.js';
-import { ManifestManager } from '../ManifestManager.js';
 import { LocalMarkdownBackend } from '../LocalMarkdownBackend.js';
+import { ManifestManager } from '../ManifestManager.js';
 
 describe('ManifestManager', () => {
   let tmpDir: string;
@@ -61,7 +61,7 @@ describe('ManifestManager', () => {
     await writeFile(filePath, 'export const x = 1;');
     const hash = await mgr.computeHash(filePath);
     expect(hash).toMatch(/^sha256:[0-9a-f]{64}$/);
-    const expected = 'sha256:' + createHash('sha256').update('export const x = 1;').digest('hex');
+    const expected = `sha256:${createHash('sha256').update('export const x = 1;').digest('hex')}`;
     expect(hash).toBe(expected);
   });
 });

@@ -2,15 +2,15 @@ import { readFile } from 'node:fs/promises';
 import * as nodePath from 'node:path';
 import type { LLMProvider } from '@repowiki/core';
 import ignore from 'ignore';
-import type { AnalyzedNode, GenerateOptions } from '../types.js';
-import { collectNodes, wikiFilePath } from '../types.js';
 import { TypeScriptAnalyzer } from '../analyzers/typescript/TypeScriptAnalyzer.js';
 import { LocalMarkdownBackend } from '../backends/LocalMarkdownBackend.js';
 import { ManifestManager } from '../backends/ManifestManager.js';
-import type { HarnessGenerator } from '../types.js';
 import { ClaudeCodeHarness } from '../harness/ClaudeCodeHarness.js';
 import { CursorHarness } from '../harness/CursorHarness.js';
-import { HarnessWriter } from '../harness/HarnessWriter.js';
+import { writeHarnessBlock } from '../harness/HarnessWriter.js';
+import type { AnalyzedNode, GenerateOptions } from '../types.js';
+import { collectNodes, wikiFilePath } from '../types.js';
+import type { HarnessGenerator } from '../types.js';
 
 export class GeneratePipeline {
   private readonly provider: LLMProvider;
@@ -20,7 +20,15 @@ export class GeneratePipeline {
   }
 
   async run(opts: GenerateOptions): Promise<void> {
-    const { repoPath, outputPath, dryRun, estimate, concurrency, harness, provider: providerKey } = opts;
+    const {
+      repoPath,
+      outputPath,
+      dryRun,
+      estimate,
+      concurrency,
+      harness,
+      provider: providerKey,
+    } = opts;
     const startTime = Date.now();
 
     // 1. Analyze
@@ -48,7 +56,19 @@ export class GeneratePipeline {
       return;
     }
 
-    // 3. Summarize modules (concurrent batches, with 429 retry)
+    // 3. Dry run preview (before any LLM calls)
+    if (dryRun) {
+      const allNodes = collectAll(root);
+      const wikiFiles = allNodes.map((n) =>
+        nodePath.relative(outputPath, wikiFilePath(n, outputPath)),
+      );
+      process.stdout.write('Files that would be written:\n');
+      for (const f of wikiFiles) process.stdout.write(`  ${f}\n`);
+      process.stdout.write('  .manifest.json\n');
+      return;
+    }
+
+    // 4. Summarize modules (concurrent batches, with 429 retry)
     const modules = collectNodes(root, 'module');
     const summaryMap = new Map<AnalyzedNode, string>();
     for (let i = 0; i < modules.length; i += concurrency) {
@@ -73,31 +93,25 @@ export class GeneratePipeline {
       node.summary = summary;
     }
 
-    // 4. Summarize non-leaf nodes bottom-up
+    // 5. Summarize non-leaf nodes bottom-up
     await summarizeNonLeaves(root, this.provider);
 
-    // 5. Generate Markdown content
+    // 6. Generate Markdown content
     const wikiEntries = collectAll(root).map((node) => ({
       relPath: nodePath.relative(outputPath, wikiFilePath(node, outputPath)),
       content: renderMarkdown(node, outputPath),
     }));
 
-    // 6. Compute source file hashes using fileMap
+    // 7. Compute source file hashes using fileMap
     const manifestFiles: Record<string, { hash: string; wikiPath: string }> = {};
     const manifestMgr = new ManifestManager(outputPath);
     for (const [rawFile, moduleNode] of fileMap) {
       const absPath = nodePath.join(repoPath, rawFile);
       const hash = await manifestMgr.computeHash(absPath);
-      const wp = nodePath.relative(repoPath, wikiFilePath(moduleNode, outputPath)).replace(/\\/g, '/');
+      const wp = nodePath
+        .relative(repoPath, wikiFilePath(moduleNode, outputPath))
+        .replace(/\\/g, '/');
       manifestFiles[rawFile] = { hash, wikiPath: wp };
-    }
-
-    // 7. Dry run
-    if (dryRun) {
-      process.stdout.write('Files that would be written:\n');
-      for (const e of wikiEntries) process.stdout.write(`  ${e.relPath}\n`);
-      process.stdout.write(`  .manifest.json\n`);
-      return;
     }
 
     // 8. Write files
@@ -127,20 +141,25 @@ export class GeneratePipeline {
     if (harness) {
       const generator: HarnessGenerator =
         harness === 'claude-code' ? new ClaudeCodeHarness() : new CursorHarness();
-      await HarnessWriter.write(generator.targetFile(repoPath), generator.generate(root));
+      await writeHarnessBlock(generator.targetFile(repoPath), generator.generate(root));
     }
 
     // 12. Summary
+    const nonLeafCount = collectAll(root).filter((n) => n.type !== 'module').length;
+    const totalLlmCalls = modules.length + nonLeafCount;
     const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
     process.stdout.write(
-      `Done: ${wikiEntries.length} wiki files, ${modules.length} LLM calls, ${elapsed}s\n`,
+      `Done: ${wikiEntries.length} wiki files, ${totalLlmCalls} LLM calls, ${elapsed}s\n`,
     );
   }
 }
 
 // --- helpers ---
 
-interface Prompt { system: string; user: string }
+interface Prompt {
+  system: string;
+  user: string;
+}
 
 function buildModulePrompt(node: AnalyzedNode): Prompt {
   const exportList = node.exports
@@ -185,10 +204,10 @@ function renderMarkdown(node: AnalyzedNode, outputPath: string): string {
   const filePath = wikiFilePath(node, outputPath);
   const lines: string[] = [
     `# ${node.title}`,
-    ``,
+    '',
     `> Path: \`${node.path}\``,
-    ``,
-    `## Overview`,
+    '',
+    '## Overview',
     node.summary,
   ];
 
@@ -208,7 +227,7 @@ function renderMarkdown(node: AnalyzedNode, outputPath: string): string {
     }
   }
 
-  return lines.join('\n') + '\n';
+  return `${lines.join('\n')}\n`;
 }
 
 async function callWithRetry<T>(fn: () => Promise<T>): Promise<T> {
@@ -229,10 +248,12 @@ async function checkGitignoreWarning(repoPath: string, outputPath: string): Prom
     const gitignore = await readFile(nodePath.join(repoPath, '.gitignore'), 'utf-8');
     const ig = ignore().add(gitignore);
     const relOutput = nodePath.relative(repoPath, outputPath);
-    if (ig.ignores(relOutput) || ig.ignores(relOutput + '/')) {
+    if (ig.ignores(relOutput) || ig.ignores(`${relOutput}/`)) {
       process.stderr.write(
         `[warn] \`${relOutput}\` appears to be gitignored. Add \`!${relOutput}/\` to .gitignore if you intend to commit the wiki.\n`,
       );
     }
-  } catch { /* no .gitignore */ }
+  } catch {
+    /* no .gitignore */
+  }
 }

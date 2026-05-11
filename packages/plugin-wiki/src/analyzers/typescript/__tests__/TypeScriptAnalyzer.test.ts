@@ -32,21 +32,22 @@ describe('TypeScriptAnalyzer', () => {
 
     it('root has package children for monorepo', async () => {
       const analyzer = new TypeScriptAnalyzer();
-      const [root] = await analyzer.analyze(REPO_ROOT) as import('../../types.js').AnalyzedNode[];
+      const [root] = (await analyzer.analyze(REPO_ROOT)) as import('../../types.js').AnalyzedNode[];
       expect(root.children.every((c) => c.type === 'package')).toBe(true);
     });
 
     it('core package node has correct path', async () => {
       const analyzer = new TypeScriptAnalyzer();
-      const [root] = await analyzer.analyze(REPO_ROOT) as import('../../types.js').AnalyzedNode[];
+      const [root] = (await analyzer.analyze(REPO_ROOT)) as import('../../types.js').AnalyzedNode[];
       const corePkg = root.children.find((c) => c.path === 'core');
       expect(corePkg).toBeDefined();
-      expect(corePkg!.type).toBe('package');
+      expect(corePkg?.type).toBe('package');
     });
 
     it('core package contains module node for src/index', async () => {
       const analyzer = new TypeScriptAnalyzer();
-      const [root] = await analyzer.analyze(REPO_ROOT) as import('../../types.js').AnalyzedNode[];
+      const [root] = (await analyzer.analyze(REPO_ROOT)) as import('../../types.js').AnalyzedNode[];
+      // biome-ignore lint/style/noNonNullAssertion: test assertion — value is guaranteed by prior expect()
       const corePkg = root.children.find((c) => c.path === 'core')!;
       const allModules = collectAllModules(corePkg);
       const indexModule = allModules.find((m) => m.path === 'core/src/index');
@@ -55,14 +56,14 @@ describe('TypeScriptAnalyzer', () => {
 
     it('all summary fields are empty strings initially', async () => {
       const analyzer = new TypeScriptAnalyzer();
-      const [root] = await analyzer.analyze(REPO_ROOT) as import('../../types.js').AnalyzedNode[];
+      const [root] = (await analyzer.analyze(REPO_ROOT)) as import('../../types.js').AnalyzedNode[];
       const allNodes = collectAll(root);
       expect(allNodes.every((n) => n.summary === '')).toBe(true);
     });
 
     it('node.path contains no .. segments', async () => {
       const analyzer = new TypeScriptAnalyzer();
-      const [root] = await analyzer.analyze(REPO_ROOT) as import('../../types.js').AnalyzedNode[];
+      const [root] = (await analyzer.analyze(REPO_ROOT)) as import('../../types.js').AnalyzedNode[];
       const allNodes = collectAll(root);
       expect(allNodes.every((n) => !n.path.includes('..'))).toBe(true);
     });
@@ -71,18 +72,22 @@ describe('TypeScriptAnalyzer', () => {
   describe('analyze() — exports (Tree-sitter)', () => {
     it('core/src/index module has 6 exports', async () => {
       const analyzer = new TypeScriptAnalyzer();
-      const [root] = await analyzer.analyze(REPO_ROOT) as import('../../types.js').AnalyzedNode[];
+      const [root] = (await analyzer.analyze(REPO_ROOT)) as import('../../types.js').AnalyzedNode[];
+      // biome-ignore lint/style/noNonNullAssertion: test assertion — value is guaranteed by prior expect()
       const corePkg = root.children.find((c) => c.path === 'core')!;
       const allModules = collectAllModules(corePkg);
+      // biome-ignore lint/style/noNonNullAssertion: test assertion — value is guaranteed by prior expect()
       const indexModule = allModules.find((m) => m.path === 'core/src/index')!;
       expect(indexModule.exports).toHaveLength(6);
     });
 
     it('core/src/index exports include all expected names', async () => {
       const analyzer = new TypeScriptAnalyzer();
-      const [root] = await analyzer.analyze(REPO_ROOT) as import('../../types.js').AnalyzedNode[];
+      const [root] = (await analyzer.analyze(REPO_ROOT)) as import('../../types.js').AnalyzedNode[];
+      // biome-ignore lint/style/noNonNullAssertion: test assertion — value is guaranteed by prior expect()
       const corePkg = root.children.find((c) => c.path === 'core')!;
       const allModules = collectAllModules(corePkg);
+      // biome-ignore lint/style/noNonNullAssertion: test assertion — value is guaranteed by prior expect()
       const indexModule = allModules.find((m) => m.path === 'core/src/index')!;
       const names = indexModule.exports.map((e) => e.name);
       expect(names).toContain('WikiNode');
@@ -95,9 +100,11 @@ describe('TypeScriptAnalyzer', () => {
 
     it('export kinds are all interface', async () => {
       const analyzer = new TypeScriptAnalyzer();
-      const [root] = await analyzer.analyze(REPO_ROOT) as import('../../types.js').AnalyzedNode[];
+      const [root] = (await analyzer.analyze(REPO_ROOT)) as import('../../types.js').AnalyzedNode[];
+      // biome-ignore lint/style/noNonNullAssertion: test assertion — value is guaranteed by prior expect()
       const corePkg = root.children.find((c) => c.path === 'core')!;
       const allModules = collectAllModules(corePkg);
+      // biome-ignore lint/style/noNonNullAssertion: test assertion — value is guaranteed by prior expect()
       const indexModule = allModules.find((m) => m.path === 'core/src/index')!;
       expect(indexModule.exports.every((e) => e.kind === 'interface')).toBe(true);
     });
@@ -107,7 +114,7 @@ describe('TypeScriptAnalyzer', () => {
 describe('analyzeWithFileMap()', () => {
   it('returns root and fileMap with source file keys', async () => {
     const analyzer = new TypeScriptAnalyzer();
-    const { root, fileMap } = await analyzer.analyzeWithFileMap(REPO_ROOT) as {
+    const { root, fileMap } = (await analyzer.analyzeWithFileMap(REPO_ROOT)) as {
       root: import('../../types.js').AnalyzedNode;
       fileMap: Map<string, import('../../types.js').AnalyzedNode>;
     };
@@ -126,25 +133,30 @@ describe('analyzeWithFileMap()', () => {
 
   it('fileMap keys match the original source file paths', async () => {
     const analyzer = new TypeScriptAnalyzer();
-    const { fileMap } = await analyzer.analyzeWithFileMap(REPO_ROOT) as {
+    const { fileMap } = (await analyzer.analyzeWithFileMap(REPO_ROOT)) as {
       root: import('../../types.js').AnalyzedNode;
       fileMap: Map<string, import('../../types.js').AnalyzedNode>;
     };
     // core/src/index.ts should be a key
     const coreIndexKey = 'packages/core/src/index.ts';
     expect(fileMap.has(coreIndexKey)).toBe(true);
+    // biome-ignore lint/style/noNonNullAssertion: test assertion — value is guaranteed by prior expect()
     const node = fileMap.get(coreIndexKey)!;
     expect(node.path).toBe('core/src/index');
     expect(node.type).toBe('module');
   });
 });
 
-function collectAll(node: import('../../types.js').AnalyzedNode): import('../../types.js').AnalyzedNode[] {
+function collectAll(
+  node: import('../../types.js').AnalyzedNode,
+): import('../../types.js').AnalyzedNode[] {
   const result: import('../../types.js').AnalyzedNode[] = [node];
   for (const child of node.children) result.push(...collectAll(child));
   return result;
 }
 
-function collectAllModules(node: import('../../types.js').AnalyzedNode): import('../../types.js').AnalyzedNode[] {
+function collectAllModules(
+  node: import('../../types.js').AnalyzedNode,
+): import('../../types.js').AnalyzedNode[] {
   return collectAll(node).filter((n) => n.type === 'module');
 }

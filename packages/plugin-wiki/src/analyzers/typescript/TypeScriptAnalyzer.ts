@@ -47,9 +47,13 @@ export class TypeScriptAnalyzer implements Analyzer {
 
     let projectName = path.basename(repoPath);
     try {
-      const pkg = JSON.parse(await readFile(path.join(repoPath, 'package.json'), 'utf-8')) as { name?: string };
+      const pkg = JSON.parse(await readFile(path.join(repoPath, 'package.json'), 'utf-8')) as {
+        name?: string;
+      };
       if (pkg.name) projectName = pkg.name;
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
 
     const root: AnalyzedNode = {
       type: 'project',
@@ -68,7 +72,7 @@ export class TypeScriptAnalyzer implements Analyzer {
 
     if (packages.length > 0) {
       for (const pkg of packages) {
-        const pkgFiles = files.filter((f) => f.startsWith(pkg.dirKey + '/'));
+        const pkgFiles = files.filter((f) => f.startsWith(`${pkg.dirKey}/`));
         const pkgNode: AnalyzedNode = {
           type: 'package',
           path: pkg.shortPath,
@@ -77,7 +81,12 @@ export class TypeScriptAnalyzer implements Analyzer {
           exports: [],
           children: [],
         };
-        pkgNode.children = await this.buildDirectoryTree(pkg.shortPath, pkg.dirKey, pkgFiles, repoPath);
+        pkgNode.children = await this.buildDirectoryTree(
+          pkg.shortPath,
+          pkg.dirKey,
+          pkgFiles,
+          repoPath,
+        );
         root.children.push(pkgNode);
       }
     } else {
@@ -91,9 +100,11 @@ export class TypeScriptAnalyzer implements Analyzer {
    * Like analyze(), but also returns a map from raw file path (relative to repoPath)
    * to the AnalyzedNode for that module. Used by GeneratePipeline to build the manifest.
    */
-  async analyzeWithFileMap(repoPath: string): Promise<{ root: AnalyzedNode; fileMap: Map<string, AnalyzedNode> }> {
+  async analyzeWithFileMap(
+    repoPath: string,
+  ): Promise<{ root: AnalyzedNode; fileMap: Map<string, AnalyzedNode> }> {
     this._lastFileMap.clear();
-    const result = await this.analyze(repoPath) as AnalyzedNode[];
+    const result = (await this.analyze(repoPath)) as AnalyzedNode[];
     return { root: result[0], fileMap: new Map(this._lastFileMap) };
   }
 
@@ -115,7 +126,9 @@ export class TypeScriptAnalyzer implements Analyzer {
           await readFile(path.join(repoPath, dirKey, 'package.json'), 'utf-8'),
         ) as { name?: string };
         const rawName = pkgJson.name ?? path.basename(dirKey);
-        const shortPath = rawName.includes('/') ? rawName.split('/').pop()! : rawName;
+        const shortPath = rawName.includes('/')
+          ? (rawName.split('/').at(-1) ?? path.basename(dirKey))
+          : rawName;
         infos.push({ dirKey, name: rawName, shortPath });
       } catch {
         infos.push({ dirKey, name: path.basename(dirKey), shortPath: path.basename(dirKey) });
@@ -158,7 +171,7 @@ export class TypeScriptAnalyzer implements Analyzer {
     for (const m of relative) {
       const seg = m.rel.split('/')[0];
       if (!bySegment.has(seg)) bySegment.set(seg, []);
-      bySegment.get(seg)!.push(m);
+      bySegment.get(seg)?.push(m);
     }
 
     const nodes: AnalyzedNode[] = [];
