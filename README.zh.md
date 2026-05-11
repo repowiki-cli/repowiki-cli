@@ -7,7 +7,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Status: Alpha](https://img.shields.io/badge/Status-Alpha-orange.svg)]()
 
-> **注意：** 本项目处于 pre-v0.1 的设计阶段，路线图和 harness 支持表格描述的是计划能力，而非已上线功能。
+> **注意：** v0.1-alpha 已发布。`wiki:generate` 和 `wiki:validate` 已全面可用。第二层和第三层正在开发中。
 
 ---
 
@@ -19,23 +19,28 @@ npm install -g repowiki-cli
 
 **前置要求：**
 - Node.js 20 或更高版本
-- 以下之一：OpenAI API key / Anthropic API key / 本地运行的 [Ollama](https://ollama.ai)
+- 以下任一：OpenAI API key / Anthropic API key / Azure OpenAI / DashScope API key / DeepSeek API key / 本地运行的 [Ollama](https://ollama.ai)
 
 ## 快速上手
 
 ```bash
-# 为当前仓库生成 wiki
-repowiki wiki generate --provider=openai
+# 生成 wiki（DashScope / 通义千问）
+repowiki wiki:generate --provider=dashscope --harness=claude-code
 
-# 生成 Claude Code 集成所需的 CLAUDE.md
-repowiki wiki generate --harness=claude-code
+# 生成 wiki（Anthropic）
+repowiki wiki:generate --provider=anthropic --harness=claude-code
+
+# 生成 wiki（Azure OpenAI，--model 指定部署名称）
+repowiki wiki:generate --provider=azure --model=my-gpt4o-deployment
 
 # 验证 wiki 与代码库是否同步
-repowiki wiki validate
+repowiki wiki:validate
 
-# 查询上下文
-repowiki context query "认证模块是如何工作的"
+# 预览模式（不调用 LLM，不写入文件）
+repowiki wiki:generate --provider=dashscope --dry-run
 ```
+
+API Key 可通过环境变量或项目根目录的 `.env` 文件配置。详见 [docs/providers.zh.md](docs/providers.zh.md)。
 
 ---
 
@@ -144,7 +149,7 @@ wiki 输出被设计为可被任何 harness 的上下文加载机制消费：
 
 `repowiki-cli` 围绕三个扩展点构建：
 
-**LLM Providers** — 核心流水线与 LLM 无关。Provider 层基于 [LiteLLM](https://github.com/BerriAI/litellm) 构建，通过统一接口覆盖 100+ provider，无需为每个 provider 单独适配。内置一流支持：OpenAI、Anthropic、Google Gemini、通义千问（阿里云），以及通过 Ollama 使用本地模型。任何兼容 OpenAI 格式的 API 端点也可直接接入。**注意：** wiki 生成默认会将代码发送至所配置的 LLM provider。对于涉及敏感信息或 IP 受限的代码库，建议使用 Ollama 或私有端点以确保代码不离开本地环境。
+**LLM Providers** — 核心流水线与 LLM 无关。内置适配器支持：OpenAI、Anthropic、Azure OpenAI、DashScope（通义千问 / 阿里云百炼）、DeepSeek，以及通过 Ollama 使用本地模型。任何兼容 OpenAI 格式的 API 端点也可通过 `--provider=openai-compat:URL` 直接接入。**注意：** wiki 生成默认会将代码发送至所配置的 LLM provider。对于涉及敏感信息或 IP 受限的代码库，建议使用 Ollama 或私有 Azure 端点以确保代码不离开本地环境。详见 [docs/providers.zh.md](docs/providers.zh.md)。
 
 **输出后端** — wiki 输出与生成流水线解耦。默认：本地 Markdown 文件。计划插件（v1.0）：[Qdrant](https://qdrant.tech)（生产级推荐）、[Weaviate](https://weaviate.io)（原生混合搜索）、Chroma（轻量原型）、FAISS（本地嵌入）、pgvector（Postgres 生态）。后端接口规范（读/写/查询契约）将在 v1.0 之前发布，以支持社区后端开发。
 
@@ -201,14 +206,16 @@ jobs:
         with:
           node-version: 20
       - run: npm install -g repowiki-cli
-      - run: repowiki wiki update --provider=openai
+      - run: repowiki wiki:update --provider=dashscope
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: update repowiki"
           file_pattern: ".repowiki/**"
 ```
+
+将 `dashscope` / `DASHSCOPE_API_KEY` 替换为你首选的 provider，详见 [docs/providers.zh.md](docs/providers.zh.md)。
 
 ### PR 检查：阻止 wiki 过期的代码合入
 
@@ -228,10 +235,10 @@ jobs:
         with:
           node-version: 20
       - run: npm install -g repowiki-cli
-      - run: repowiki wiki validate
+      - run: repowiki wiki:validate
 ```
 
-`repowiki wiki validate` 在 wiki 与当前代码库不同步时以非零状态码退出，导致 PR 检查失败，提示作者在合入前先在本地执行 `repowiki wiki update`。
+`repowiki wiki:validate` 在 wiki 与当前代码库不同步时以非零状态码退出，导致 PR 检查失败，提示作者在合入前先在本地执行 `repowiki wiki:generate`。
 
 ---
 
@@ -265,13 +272,11 @@ jobs:
 
 ## 参与贡献
 
-本项目正处于活跃的设计阶段。当前最有价值的贡献方式：
+详见 [CONTRIBUTING.md](CONTRIBUTING.md)。当前影响力最大的贡献方向：
 
-- **分享你的上下文问题** — 开一个 Issue，描述上下文爆炸是如何影响你的团队的。真实案例会塑造工具的优先级。
-- **评审架构设计** — 扩展点设计在 v0.1 发布前对外征求意见。架构讨论在 [GitHub Issues](../../issues) 的 `design` 标签下进行。
-- **构建语言分析器** — 如果你的主要语言不是 TypeScript，提交一个语言分析器 PR 是影响力最大的贡献。
-
-详细贡献指南（`CONTRIBUTING.md`）将随 v0.1 一同发布。
+- **构建语言分析器** — 实现 `@repowiki/core` 中的 `Analyzer` 接口，发布为 `repowiki-plugin-analyzer-<lang>`，支持你的首选语言。
+- **构建输出后端** — 实现 `OutputBackend` 接口，接入向量数据库（Qdrant、Weaviate、pgvector 等），发布为 `repowiki-plugin-backend-<name>`。
+- **分享你的上下文问题** — 开一个 Issue，描述上下文爆炸是如何影响你的团队的。
 
 ---
 
