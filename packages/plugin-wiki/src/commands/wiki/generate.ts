@@ -1,5 +1,6 @@
 import * as path from 'node:path';
 import { Command, Flags } from '@oclif/core';
+import dotenv from 'dotenv';
 import { GeneratePipeline } from '../../pipeline/GeneratePipeline.js';
 import { createProvider, providerEnvKey } from '../../providers/createProvider.js';
 
@@ -51,6 +52,9 @@ export default class WikiGenerate extends Command {
   };
 
   async run(): Promise<void> {
+    // Load .env from the current working directory (override: false keeps explicit env vars)
+    dotenv.config({ path: path.join(process.cwd(), '.env'), override: false });
+
     const { flags } = await this.parse(WikiGenerate);
     const repoPath = process.cwd();
     const rawOutput = flags.output;

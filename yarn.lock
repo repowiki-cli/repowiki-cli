@@ -683,6 +683,7 @@ __metadata:
     "@oclif/core": "npm:^4.0.0"
     "@repowiki/core": "workspace:*"
     "@types/node": "npm:^20.0.0"
+    dotenv: "npm:^16.0.0"
     fast-glob: "npm:^3.3.0"
     ignore: "npm:^5.3.0"
     js-tiktoken: "npm:^1.0.0"
@@ -1336,6 +1337,13 @@ __metadata:
   dependencies:
     path-type: "npm:^4.0.0"
   checksum: 10c0/dcac00920a4d503e38bb64001acb19df4efc14536ada475725e12f52c16777afdee4db827f55f13a908ee7efc0cb282e2e3dbaeeb98c0993dd93d1802d3bf00c
+  languageName: node
+  linkType: hard
+
+"dotenv@npm:^16.0.0":
+  version: 16.6.1
+  resolution: "dotenv@npm:16.6.1"
+  checksum: 10c0/15ce56608326ea0d1d9414a5c8ee6dcf0fffc79d2c16422b4ac2268e7e2d76ff5a572d37ffe747c377de12005f14b3cc22361e79fc7f1061cce81f77d2c973dc
   languageName: node
   linkType: hard
 
