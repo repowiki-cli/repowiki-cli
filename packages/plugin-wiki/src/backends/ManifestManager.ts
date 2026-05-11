@@ -16,8 +16,9 @@ export class ManifestManager {
     try {
       const content = await readFile(this.manifestPath, 'utf-8');
       return JSON.parse(content) as Manifest;
-    } catch {
-      return null;
+    } catch (err: unknown) {
+      if ((err as NodeJS.ErrnoException).code === 'ENOENT') return null;
+      throw err;
     }
   }
 

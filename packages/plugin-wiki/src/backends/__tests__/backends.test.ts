@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -11,7 +11,7 @@ describe('ManifestManager', () => {
   let tmpDir: string;
 
   beforeEach(async () => {
-    tmpDir = await fs_mkdtemp(path.join(os.tmpdir(), 'repowiki-test-'));
+    tmpDir = await mkdtemp(path.join(os.tmpdir(), 'repowiki-test-'));
   });
 
   afterEach(async () => {
@@ -70,7 +70,7 @@ describe('LocalMarkdownBackend', () => {
   let tmpDir: string;
 
   beforeEach(async () => {
-    tmpDir = await fs_mkdtemp(path.join(os.tmpdir(), 'repowiki-backend-'));
+    tmpDir = await mkdtemp(path.join(os.tmpdir(), 'repowiki-backend-'));
   });
 
   afterEach(async () => {
@@ -96,15 +96,14 @@ describe('LocalMarkdownBackend', () => {
     await expect(backend.write('../escape.md', 'bad')).rejects.toThrow('Path traversal');
   });
 
+  it('read() throws on path traversal attempt', async () => {
+    const backend = new LocalMarkdownBackend(tmpDir);
+    await expect(backend.read('../escape.md')).rejects.toThrow('Path traversal');
+  });
+
   it('query() returns empty array', async () => {
     const backend = new LocalMarkdownBackend(tmpDir);
     const result = await backend.query([1, 2, 3]);
     expect(result).toEqual([]);
   });
 });
-
-// helper
-async function fs_mkdtemp(prefix: string): Promise<string> {
-  const { mkdtemp } = await import('node:fs/promises');
-  return mkdtemp(prefix);
-}
