@@ -31,6 +31,30 @@ yarn lint --write
 node packages/cli/bin/run.js --help
 ```
 
+## Environment Variables
+
+| Variable | Provider |
+|---|---|
+| `ANTHROPIC_API_KEY` | `--provider=anthropic` |
+| `OPENAI_API_KEY` | `--provider=openai`, `--provider=openai-compat:URL` |
+| `DASHSCOPE_API_KEY` | `--provider=dashscope` |
+| `DEEPSEEK_API_KEY` | `--provider=deepseek` |
+
+## Running wiki:generate Locally
+
+```bash
+# Generate wiki and update CLAUDE.md
+ANTHROPIC_API_KEY=sk-ant-... node packages/cli/bin/run.js wiki generate \
+  --provider=anthropic \
+  --harness=claude-code
+
+# Validate wiki is in sync
+node packages/cli/bin/run.js wiki validate
+
+# Dry run (preview without writing)
+node packages/cli/bin/run.js wiki generate --provider=anthropic --dry-run
+```
+
 ## Architecture
 
 This is a Yarn 4 workspaces monorepo. The five packages map to the three-layer methodology:
@@ -57,7 +81,7 @@ packages/plugin-spec     — Layer 3: spec sdd/atdd/review commands
 
 **Default wiki output:** `.repowiki/` directory written into the target repo (not this repo).
 
-**Status:** Pre-v0.1 design phase — all command `run()` bodies currently log `'not yet implemented'`. See `docs/architecture.md` for the full interface specs.
+**Status:** v0.1-alpha — `wiki:generate` and `wiki:validate` are fully implemented.
 
 ## Test Conventions
 

@@ -5,7 +5,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![Status: Design Phase](https://img.shields.io/badge/Status-设计阶段-blue.svg)]()
+[![Status: Alpha](https://img.shields.io/badge/Status-Alpha-orange.svg)]()
 
 > **注意：** 本项目处于 pre-v0.1 的设计阶段，路线图和 harness 支持表格描述的是计划能力，而非已上线功能。
 
@@ -238,11 +238,11 @@ jobs:
 ## 路线图
 
 ### v0.1 — 基础架构
-- [ ] 核心 CLI 架构与扩展点
-- [ ] TypeScript/JavaScript 仓库的 wiki 生成
-- [ ] 本地 Markdown 输出后端
-- [ ] Wiki 同步状态验证（`repowiki wiki validate`）
-- [ ] Claude Code 和 Cursor harness 配置生成
+- [x] 核心 CLI 架构与扩展点
+- [x] TypeScript/JavaScript 仓库的 wiki 生成
+- [x] 本地 Markdown 输出后端
+- [x] Wiki 同步状态验证（`repowiki wiki validate`）
+- [x] Claude Code 和 Cursor harness 配置生成
 
 ### v0.2 — 上下文路由
 - [ ] Wiki 索引与 RAG 查询接口

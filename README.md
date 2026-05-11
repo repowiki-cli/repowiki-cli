@@ -5,7 +5,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![Status: Design Phase](https://img.shields.io/badge/Status-Design%20Phase-blue.svg)]()
+[![Status: Alpha](https://img.shields.io/badge/Status-Alpha-orange.svg)]()
 
 > **Note:** This project is pre-v0.1 and in active design phase. The roadmap and harness support table describe planned capabilities, not shipped features.
 
@@ -238,11 +238,11 @@ jobs:
 ## Roadmap
 
 ### v0.1 — Foundation
-- [ ] Core CLI architecture and extension points
-- [ ] Wiki generation for TypeScript/JavaScript repos
-- [ ] Local Markdown output backend
-- [ ] Wiki freshness validation (`repowiki wiki validate`)
-- [ ] Claude Code and Cursor harness config generation
+- [x] Core CLI architecture and extension points
+- [x] Wiki generation for TypeScript/JavaScript repos
+- [x] Local Markdown output backend
+- [x] Wiki freshness validation (`repowiki wiki validate`)
+- [x] Claude Code and Cursor harness config generation
 
 ### v0.2 — Context Routing
 - [ ] Wiki indexing and RAG query interface
