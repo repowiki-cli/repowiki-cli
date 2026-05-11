@@ -104,6 +104,41 @@ describe('TypeScriptAnalyzer', () => {
   });
 });
 
+describe('analyzeWithFileMap()', () => {
+  it('returns root and fileMap with source file keys', async () => {
+    const analyzer = new TypeScriptAnalyzer();
+    const { root, fileMap } = await analyzer.analyzeWithFileMap(REPO_ROOT) as {
+      root: import('../../types.js').AnalyzedNode;
+      fileMap: Map<string, import('../../types.js').AnalyzedNode>;
+    };
+    expect(root.type).toBe('project');
+    expect(fileMap.size).toBeGreaterThan(0);
+    // All keys should be relative paths with extensions
+    for (const key of fileMap.keys()) {
+      expect(key).toMatch(/\.(ts|tsx|js|jsx)$/);
+      expect(key).not.toContain('..');
+    }
+    // All values should be module-type nodes
+    for (const node of fileMap.values()) {
+      expect(node.type).toBe('module');
+    }
+  });
+
+  it('fileMap keys match the original source file paths', async () => {
+    const analyzer = new TypeScriptAnalyzer();
+    const { fileMap } = await analyzer.analyzeWithFileMap(REPO_ROOT) as {
+      root: import('../../types.js').AnalyzedNode;
+      fileMap: Map<string, import('../../types.js').AnalyzedNode>;
+    };
+    // core/src/index.ts should be a key
+    const coreIndexKey = 'packages/core/src/index.ts';
+    expect(fileMap.has(coreIndexKey)).toBe(true);
+    const node = fileMap.get(coreIndexKey)!;
+    expect(node.path).toBe('core/src/index');
+    expect(node.type).toBe('module');
+  });
+});
+
 function collectAll(node: import('../../types.js').AnalyzedNode): import('../../types.js').AnalyzedNode[] {
   const result: import('../../types.js').AnalyzedNode[] = [node];
   for (const child of node.children) result.push(...collectAll(child));

@@ -6,6 +6,8 @@ import ignore from 'ignore';
 import type { AnalyzedNode, ExportEntry } from '../../types.js';
 import { extractExports } from './queries.js';
 
+const HARD_EXCLUDES = /node_modules|dist\/|__tests__|\.test\.|\.spec\./;
+
 interface PackageInfo {
   dirKey: string;
   name: string;
@@ -31,10 +33,8 @@ export class TypeScriptAnalyzer implements Analyzer {
       absolute: false,
     });
 
-    const hardExcludes = /node_modules|dist\/|__tests__|\.test\.|\.spec\./;
-
     return rawFiles.filter((f) => {
-      if (hardExcludes.test(f)) return false;
+      if (HARD_EXCLUDES.test(f)) return false;
       if (ig.ignores(f)) return false;
       const norm = f.replace(/\\/g, '/');
       if (norm.includes('..')) return false;

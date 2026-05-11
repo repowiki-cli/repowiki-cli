@@ -14,6 +14,14 @@ const { typescript: TSLanguage, tsx: TSXLanguage } = (() => {
   };
 })();
 
+const tsParser = new Parser();
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+tsParser.setLanguage(TSLanguage as any);
+
+const tsxParser = new Parser();
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+tsxParser.setLanguage(TSXLanguage as any);
+
 function kindFromNodeType(type: string): ExportEntry['kind'] | null {
   switch (type) {
     case 'class_declaration':
@@ -50,23 +58,22 @@ function getExportName(decl: SyntaxNode): string | null {
 
 function getLeadingJsDoc(node: SyntaxNode): string | undefined {
   const prev = node.previousNamedSibling;
-  if (prev?.type === 'comment' && prev.text.startsWith('/**')) {
-    const lines = prev.text.split('\n') as string[];
-    for (const line of lines) {
-      const trimmed = line.replace(/^\s*\*+\s?/, '').trim();
-      if (trimmed && trimmed !== '/' && !trimmed.startsWith('@')) {
-        return trimmed;
-      }
+  if (prev?.type !== 'comment') return undefined;
+  const text = prev.text;
+  if (!text.startsWith('/**')) return undefined;
+  // Strip the /** prefix and */ suffix, then extract the first meaningful line
+  const inner = text.replace(/^\/\*\*/, '').replace(/\*\/$/, '');
+  for (const line of inner.split('\n')) {
+    const trimmed = line.replace(/^\s*\*?\s?/, '').trim();
+    if (trimmed && !trimmed.startsWith('@')) {
+      return trimmed;
     }
   }
   return undefined;
 }
 
 export function extractExports(source: string, isTsx: boolean): ExportEntry[] {
-  const parser = new Parser();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  parser.setLanguage((isTsx ? TSXLanguage : TSLanguage) as any);
-  const tree = parser.parse(source);
+  const tree = (isTsx ? tsxParser : tsParser).parse(source);
   const exports: ExportEntry[] = [];
 
   function visit(node: SyntaxNode): void {
