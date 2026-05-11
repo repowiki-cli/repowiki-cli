@@ -19,10 +19,18 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.24.0",
     "@oclif/core": "^4.0.0",
-    "@repowiki/core": "workspace:*"
+    "@repowiki/core": "workspace:*",
+    "fast-glob": "^3.3.0",
+    "ignore": "^5.3.0",
+    "js-tiktoken": "^1.0.0",
+    "openai": "^4.0.0",
+    "tree-sitter": "^0.22.0",
+    "tree-sitter-typescript": "^0.23.0"
   },
   "devDependencies": {
+    "@types/node": "^20.0.0",
     "typescript": "^5.6.0",
     "vitest": "^2.1.0"
   }
