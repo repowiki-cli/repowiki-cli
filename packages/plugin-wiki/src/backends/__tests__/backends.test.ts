@@ -5,6 +5,7 @@ import * as path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { Manifest } from '../../types.js';
 import { ManifestManager } from '../ManifestManager.js';
+import { LocalMarkdownBackend } from '../LocalMarkdownBackend.js';
 
 describe('ManifestManager', () => {
   let tmpDir: string;
@@ -62,6 +63,43 @@ describe('ManifestManager', () => {
     expect(hash).toMatch(/^sha256:[0-9a-f]{64}$/);
     const expected = 'sha256:' + createHash('sha256').update('export const x = 1;').digest('hex');
     expect(hash).toBe(expected);
+  });
+});
+
+describe('LocalMarkdownBackend', () => {
+  let tmpDir: string;
+
+  beforeEach(async () => {
+    tmpDir = await fs_mkdtemp(path.join(os.tmpdir(), 'repowiki-backend-'));
+  });
+
+  afterEach(async () => {
+    await rm(tmpDir, { recursive: true, force: true });
+  });
+
+  it('write() creates file and intermediate directories', async () => {
+    const backend = new LocalMarkdownBackend(tmpDir);
+    await backend.write('core/src/index.md', '# Hello');
+    const content = await readFile(path.join(tmpDir, 'core/src/index.md'), 'utf-8');
+    expect(content).toBe('# Hello');
+  });
+
+  it('read() returns file content', async () => {
+    const backend = new LocalMarkdownBackend(tmpDir);
+    await backend.write('test.md', 'content');
+    const result = await backend.read('test.md');
+    expect(result).toBe('content');
+  });
+
+  it('write() throws on path traversal attempt', async () => {
+    const backend = new LocalMarkdownBackend(tmpDir);
+    await expect(backend.write('../escape.md', 'bad')).rejects.toThrow('Path traversal');
+  });
+
+  it('query() returns empty array', async () => {
+    const backend = new LocalMarkdownBackend(tmpDir);
+    const result = await backend.query([1, 2, 3]);
+    expect(result).toEqual([]);
   });
 });
 
