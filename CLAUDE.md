@@ -15,8 +15,10 @@ yarn build
 yarn test
 
 # Run tests for a single package
-yarn workspace @repowiki/core test
-yarn workspace repowiki-cli test
+yarn workspace @repowiki/plugin-wiki test
+
+# Run a specific test file
+yarn workspace @repowiki/plugin-wiki vitest run src/providers/__tests__/providers.test.ts
 
 # Type-check without emitting
 yarn typecheck
@@ -28,7 +30,9 @@ yarn lint
 yarn lint --write
 
 # Run the CLI locally (after build)
-node packages/cli/bin/run.js --help
+node packages/cli/bin/run.js wiki:generate --provider=dashscope --harness=claude-code
+node packages/cli/bin/run.js wiki:validate
+node packages/cli/bin/run.js wiki:generate --provider=dashscope --dry-run
 ```
 
 ## Environment Variables
@@ -37,77 +41,100 @@ node packages/cli/bin/run.js --help
 |---|---|
 | `ANTHROPIC_API_KEY` | `--provider=anthropic` |
 | `OPENAI_API_KEY` | `--provider=openai`, `--provider=openai-compat:URL` |
+| `AZURE_OPENAI_API_KEY` | `--provider=azure` |
+| `AZURE_OPENAI_ENDPOINT` | `--provider=azure` (e.g. `https://YOUR-RESOURCE.openai.azure.com`) |
 | `DASHSCOPE_API_KEY` | `--provider=dashscope` |
 | `DEEPSEEK_API_KEY` | `--provider=deepseek` |
 
-## Running wiki:generate Locally
-
-```bash
-# Generate wiki and update CLAUDE.md
-ANTHROPIC_API_KEY=sk-ant-... node packages/cli/bin/run.js wiki generate \
-  --provider=anthropic \
-  --harness=claude-code
-
-# Validate wiki is in sync
-node packages/cli/bin/run.js wiki validate
-
-# Dry run (preview without writing)
-node packages/cli/bin/run.js wiki generate --provider=anthropic --dry-run
-```
+Both commands load `.env` from the current working directory automatically. Explicit env vars take precedence.
 
 ## Architecture
 
-This is a Yarn 4 workspaces monorepo. The five packages map to the three-layer methodology:
+Yarn 4 workspaces monorepo. Five packages map to the three-layer methodology:
 
 ```
-packages/core            — shared TypeScript interfaces only (no runtime code)
-packages/cli             — oclif CLI entry point; registers the three plugins
-packages/plugin-wiki     — Layer 1: wiki generate/update/validate commands
-packages/plugin-context  — Layer 2: context index/query/serve commands
-packages/plugin-spec     — Layer 3: spec sdd/atdd/review commands
+packages/core            — shared TypeScript interfaces only (zero runtime deps)
+packages/cli             — oclif CLI entry point; aggregates the three plugins
+packages/plugin-wiki     — Layer 1: wiki:generate / wiki:validate / wiki:update
+packages/plugin-context  — Layer 2: context:index / context:query / context:serve (stub)
+packages/plugin-spec     — Layer 3: spec:sdd / spec:atdd / spec:review (stub)
 ```
 
-**Dependency flow:** `cli` depends on all three plugins; each plugin depends on `@repowiki/core`; plugins never depend on each other. At runtime however the layers are a sequential pipeline — Layer 1 writes `WikiNode` Markdown to `.repowiki/` in the target repo, Layer 2 indexes that output and serves RAG queries, Layer 3 consumes those queries to generate specs. Layers 2 and 3 require Layer 1 to have run first.
+**Dependency rule:** `cli` → all three plugins → `@repowiki/core`. Plugins never depend on each other. `@repowiki/core` has zero runtime dependencies.
 
-**`@repowiki/core` is the contract layer.** It exports four interfaces that everything else implements:
-- `Analyzer` — parses a repo into `WikiNode[]` (tree-sitter based, TS/JS built-in)
-- `LLMProvider` — wraps any LLM behind a single `complete(messages)` call
-- `OutputBackend` — read/write/query interface for wiki storage
-- `WikiNode` — the unit of the wiki hierarchy (`path`, `title`, `summary`, `children`)
+**`@repowiki/core` contracts** (`packages/core/src/index.ts`):
+- `Analyzer` — `analyze(repoPath): Promise<WikiNode[]>`
+- `LLMProvider` — `complete(messages: ChatMessage[]): Promise<string>`
+- `OutputBackend` — `write / read / query`
+- `WikiNode` — `{ path, title, summary, children }`
 
-**CLI framework:** oclif v4. Commands live at `src/commands/<topic>/<verb>.ts` inside each plugin. The plugin's `oclif.commands` field in `package.json` points to `./dist/commands`.
+All concrete implementations live in `plugin-wiki`; `core` only exports interfaces.
 
-**Build:** Each package builds independently with `tsc -p tsconfig.json`. `tsconfig.json` extends `../../tsconfig.base.json` and excludes `src/**/__tests__/**` from compilation output.
+## plugin-wiki Internal Structure
 
-**Default wiki output:** `.repowiki/` directory written into the target repo (not this repo).
+The only fully implemented plugin. Its `src/` layout:
 
-**Status:** v0.1-alpha — `wiki:generate` and `wiki:validate` are fully implemented.
+```
+types.ts                          — AnalyzedNode (extends WikiNode + type + exports),
+                                    GenerateOptions, ValidateOptions, Manifest,
+                                    wikiFilePath(), collectNodes()
+analyzers/typescript/
+  TypeScriptAnalyzer.ts           — implements Analyzer; file discovery (fast-glob + ignore),
+                                    monorepo package detection, directory-tree collapse
+  queries.ts                      — Tree-sitter AST traversal for export extraction
+providers/
+  OpenAIProvider.ts               — openai SDK (also used for Ollama/DashScope/DeepSeek)
+  AnthropicProvider.ts            — @anthropic-ai/sdk
+  AzureOpenAIProvider.ts          — openai AzureOpenAI class; reads AZURE_OPENAI_ENDPOINT
+  createProvider.ts               — factory + providerEnvKey()
+backends/
+  LocalMarkdownBackend.ts         — implements OutputBackend; path-traversal guard
+  ManifestManager.ts              — .repowiki/.manifest.json atomic read/write, SHA-256 hashing
+harness/
+  HarnessWriter.ts                — non-destructive tagged-block writes to CLAUDE.md / .cursorrules
+  ClaudeCodeHarness.ts / CursorHarness.ts — implement HarnessGenerator
+pipeline/
+  GeneratePipeline.ts             — analyze → summarize (concurrent batches) → render → write
+  ValidatePipeline.ts             — manifest diff; exits 1 when stale/new/deleted files found
+commands/wiki/
+  generate.ts / validate.ts       — thin oclif wrappers; load .env, validate flags, call pipelines
+```
+
+**GeneratePipeline flow:** `analyzeWithFileMap()` → token estimate (optional) → concurrent LLM summarization of module nodes (Map-collect-then-apply to avoid race conditions) → bottom-up parent node summarization → Markdown render → write files → save manifest → harness config.
+
+**Node types:** `project` (root) → `package` (monorepo workspace) → `directory` (intermediate, collapsed when single-child) → `module` (source file). Path mapping: project→`_index.md`, package/directory→`{path}/_index.md`, module→`{path}.md`.
+
+## Build and Module Resolution
+
+- **`module: NodeNext`** — all relative imports in `.ts` source files must use `.js` extensions (e.g. `import { Foo } from './foo.js'`).
+- `tsconfig.json` per package extends `../../tsconfig.base.json` and excludes `src/**/__tests__/**` from compilation.
+- **tree-sitter** uses native N-API bindings. CI needs `python3`, `make`, and `gcc`/`clang` available.
 
 ## Test Conventions
 
-Tests live in a `__tests__/` directory next to their source file (not a top-level `tests/` dir):
+Tests live in `__tests__/` next to their source:
 
 ```
-src/commands/wiki/generate.ts
-src/commands/wiki/__tests__/generate.test.ts
+src/providers/OpenAIProvider.ts
+src/providers/__tests__/providers.test.ts
 ```
 
-Test framework is Vitest. Import style: `import { describe, expect, it } from 'vitest'`.
+Framework: Vitest. All LLM calls are mocked (`vi.mock('openai', ...)`); no network calls in tests.
 
 ## Changesets
 
-Every PR that changes a published package requires a changeset entry:
+Every PR that changes a published package requires a changeset:
 
 ```bash
-yarn changeset   # select affected packages, describe the change
+yarn changeset
 ```
 
 ## Extension Points
 
-New language analyzers and output backends implement interfaces from `@repowiki/core`:
-- Analyzers: publish as `repowiki-plugin-analyzer-<lang>`
-- Backends: publish as `repowiki-plugin-backend-<name>`
-- Install via: `repowiki plugins:install <package-name>`
+Implement interfaces from `@repowiki/core` and publish as npm packages:
+- Language analyzers: `repowiki-plugin-analyzer-<lang>`
+- Output backends: `repowiki-plugin-backend-<name>`
+- Install: `repowiki plugins:install <package-name>`
 
 
 <!-- repowiki:start -->
