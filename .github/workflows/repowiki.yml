@@ -22,7 +22,7 @@ jobs:
       - name: Install repowiki-cli
         run: npm install -g repowiki-cli
       - name: Update wiki
-        run: repowiki wiki update --provider=dashscope --model=qwen3-max
+        run: repowiki wiki update --provider=dashscope --model=qwen3-max || repowiki wiki generate --provider=dashscope --model=qwen3-max
         env:
           DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
       - name: Commit wiki changes

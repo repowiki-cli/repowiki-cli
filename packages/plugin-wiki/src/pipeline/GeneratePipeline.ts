@@ -8,10 +8,10 @@ import { ManifestManager } from '../backends/ManifestManager.js';
 import { ClaudeCodeHarness } from '../harness/ClaudeCodeHarness.js';
 import { CursorHarness } from '../harness/CursorHarness.js';
 import { writeHarnessBlock } from '../harness/HarnessWriter.js';
-import { collectAll, renderMarkdown } from './render.js';
-import { summarizeModule, summarizeParent } from './summarize.js';
 import type { AnalyzedNode, GenerateOptions, HarnessGenerator } from '../types.js';
 import { collectNodes, wikiFilePath } from '../types.js';
+import { collectAll, renderMarkdown } from './render.js';
+import { summarizeModule, summarizeParent } from './summarize.js';
 
 export class GeneratePipeline {
   private readonly provider: LLMProvider;

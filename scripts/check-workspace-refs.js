@@ -1,5 +1,3 @@
-'use strict';
-
 const fs = require('node:fs');
 
 const p = JSON.parse(fs.readFileSync('./package.json', 'utf-8'));
@@ -13,8 +11,6 @@ const bad = Object.entries(all).filter(
   ([, v]) => typeof v === 'string' && v.startsWith('workspace:'),
 );
 if (bad.length) {
-  console.error(
-    'ERR: workspace: refs not resolved: ' + bad.map(([k]) => k).join(', '),
-  );
+  console.error(`ERR: workspace: refs not resolved: ${bad.map(([k]) => k).join(', ')}`);
   process.exit(1);
 }

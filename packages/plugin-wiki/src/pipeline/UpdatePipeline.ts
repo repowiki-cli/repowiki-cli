@@ -3,10 +3,10 @@ import type { LLMProvider } from '@repowiki/core';
 import { TypeScriptAnalyzer } from '../analyzers/typescript/TypeScriptAnalyzer.js';
 import { LocalMarkdownBackend } from '../backends/LocalMarkdownBackend.js';
 import { ManifestManager } from '../backends/ManifestManager.js';
-import { collectAll, renderMarkdown } from './render.js';
-import { summarizeModule, summarizeParent } from './summarize.js';
 import type { AnalyzedNode, ManifestV2, UpdateOptions } from '../types.js';
 import { wikiFilePath } from '../types.js';
+import { collectAll, renderMarkdown } from './render.js';
+import { summarizeModule, summarizeParent } from './summarize.js';
 
 export class UpdatePipeline {
   private readonly provider: LLMProvider;
@@ -27,9 +27,7 @@ export class UpdatePipeline {
       return;
     }
     if (manifest.version === 1) {
-      process.stdout.write(
-        'Wiki manifest is outdated. Run `repowiki wiki generate` to upgrade.\n',
-      );
+      process.stdout.write('Wiki manifest is outdated. Run `repowiki wiki generate` to upgrade.\n');
       process.exit(1);
       return;
     }
@@ -140,7 +138,8 @@ export class UpdatePipeline {
     for (const relPath of [...stale, ...newFiles]) {
       const node = fileMap.get(relPath);
       if (!node) continue;
-      const hash = hashCache.get(relPath) ?? await manifestMgr.computeHash(nodePath.join(repoPath, relPath));
+      const hash =
+        hashCache.get(relPath) ?? (await manifestMgr.computeHash(nodePath.join(repoPath, relPath)));
       const wikiPathRel = nodePath
         .relative(repoPath, wikiFilePath(node, outputPath))
         .replace(/\\/g, '/');

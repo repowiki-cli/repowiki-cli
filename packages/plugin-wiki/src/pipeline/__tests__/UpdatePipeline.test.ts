@@ -42,7 +42,12 @@ describe('UpdatePipeline', () => {
     const pipeline = new UpdatePipeline(mockProvider);
     const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => {}) as never);
     const stdoutSpy = vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
-    await pipeline.run({ provider: 'openai', repoPath: tmpDir, outputPath: outputDir, concurrency: 2 });
+    await pipeline.run({
+      provider: 'openai',
+      repoPath: tmpDir,
+      outputPath: outputDir,
+      concurrency: 2,
+    });
     expect(exitSpy).toHaveBeenCalledWith(1);
     expect(stdoutSpy.mock.calls.some((a) => String(a[0]).includes('wiki generate'))).toBe(true);
     exitSpy.mockRestore();
@@ -53,12 +58,22 @@ describe('UpdatePipeline', () => {
     await mkdir(outputDir, { recursive: true });
     const { ManifestManager } = await import('../../backends/ManifestManager.js');
     const mgr = new ManifestManager(outputDir);
-    await mgr.save({ version: 1, generatedAt: new Date().toISOString(), provider: 'openai', files: {} });
+    await mgr.save({
+      version: 1,
+      generatedAt: new Date().toISOString(),
+      provider: 'openai',
+      files: {},
+    });
 
     const pipeline = new UpdatePipeline(mockProvider);
     const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => {}) as never);
     const stdoutSpy = vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
-    await pipeline.run({ provider: 'openai', repoPath: tmpDir, outputPath: outputDir, concurrency: 2 });
+    await pipeline.run({
+      provider: 'openai',
+      repoPath: tmpDir,
+      outputPath: outputDir,
+      concurrency: 2,
+    });
     expect(exitSpy).toHaveBeenCalledWith(1);
     expect(stdoutSpy.mock.calls.some((a) => String(a[0]).includes('outdated'))).toBe(true);
     exitSpy.mockRestore();
@@ -68,15 +83,24 @@ describe('UpdatePipeline', () => {
   it('exits 0 and makes no LLM calls when nothing changed', async () => {
     const generateProvider: LLMProvider = { complete: vi.fn().mockResolvedValue('gen summary') };
     await new GeneratePipeline(generateProvider).run({
-      provider: 'openai', dryRun: false, estimate: false, concurrency: 2,
-      repoPath: tmpDir, outputPath: outputDir,
+      provider: 'openai',
+      dryRun: false,
+      estimate: false,
+      concurrency: 2,
+      repoPath: tmpDir,
+      outputPath: outputDir,
     });
 
     const updateProvider: LLMProvider = { complete: vi.fn() };
     const pipeline = new UpdatePipeline(updateProvider);
     const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => {}) as never);
     const stdoutSpy = vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
-    await pipeline.run({ provider: 'openai', repoPath: tmpDir, outputPath: outputDir, concurrency: 2 });
+    await pipeline.run({
+      provider: 'openai',
+      repoPath: tmpDir,
+      outputPath: outputDir,
+      concurrency: 2,
+    });
     expect(vi.mocked(updateProvider.complete)).not.toHaveBeenCalled();
     expect(exitSpy).toHaveBeenCalledWith(0);
     expect(stdoutSpy.mock.calls.some((a) => String(a[0]).includes('up to date'))).toBe(true);
@@ -87,8 +111,12 @@ describe('UpdatePipeline', () => {
   it('re-summarizes only the stale file and updates manifest', async () => {
     const generateProvider: LLMProvider = { complete: vi.fn().mockResolvedValue('gen summary') };
     await new GeneratePipeline(generateProvider).run({
-      provider: 'openai', dryRun: false, estimate: false, concurrency: 2,
-      repoPath: tmpDir, outputPath: outputDir,
+      provider: 'openai',
+      dryRun: false,
+      estimate: false,
+      concurrency: 2,
+      repoPath: tmpDir,
+      outputPath: outputDir,
     });
     const genCallCount = vi.mocked(generateProvider.complete).mock.calls.length;
 
@@ -96,7 +124,10 @@ describe('UpdatePipeline', () => {
 
     const updateProvider: LLMProvider = { complete: vi.fn().mockResolvedValue('updated summary') };
     await new UpdatePipeline(updateProvider).run({
-      provider: 'openai', repoPath: tmpDir, outputPath: outputDir, concurrency: 2,
+      provider: 'openai',
+      repoPath: tmpDir,
+      outputPath: outputDir,
+      concurrency: 2,
     });
 
     expect(vi.mocked(updateProvider.complete).mock.calls.length).toBeLessThan(genCallCount);
@@ -111,20 +142,31 @@ describe('UpdatePipeline', () => {
 
   it('deletes wiki file and manifest entry for a deleted source file', async () => {
     await new GeneratePipeline({ complete: vi.fn().mockResolvedValue('gen') } as LLMProvider).run({
-      provider: 'openai', dryRun: false, estimate: false, concurrency: 2,
-      repoPath: tmpDir, outputPath: outputDir,
+      provider: 'openai',
+      dryRun: false,
+      estimate: false,
+      concurrency: 2,
+      repoPath: tmpDir,
+      outputPath: outputDir,
     });
 
-    const manifestBefore = JSON.parse(await readFile(path.join(outputDir, '.manifest.json'), 'utf-8'));
+    const manifestBefore = JSON.parse(
+      await readFile(path.join(outputDir, '.manifest.json'), 'utf-8'),
+    );
     const utilsWikiPath = path.resolve(tmpDir, manifestBefore.files['src/utils.ts'].wikiPath);
     await expect(readFile(utilsWikiPath)).resolves.toBeTruthy();
 
     const { unlink } = await import('node:fs/promises');
     await unlink(path.join(tmpDir, 'src/utils.ts'));
 
-    await new UpdatePipeline({ complete: vi.fn().mockResolvedValue('updated') } as LLMProvider).run({
-      provider: 'openai', repoPath: tmpDir, outputPath: outputDir, concurrency: 2,
-    });
+    await new UpdatePipeline({ complete: vi.fn().mockResolvedValue('updated') } as LLMProvider).run(
+      {
+        provider: 'openai',
+        repoPath: tmpDir,
+        outputPath: outputDir,
+        concurrency: 2,
+      },
+    );
 
     await expect(readFile(utilsWikiPath)).rejects.toThrow();
 
@@ -134,14 +176,23 @@ describe('UpdatePipeline', () => {
 
   it('writes wiki file for a new source file and adds manifest entry', async () => {
     await new GeneratePipeline({ complete: vi.fn().mockResolvedValue('gen') } as LLMProvider).run({
-      provider: 'openai', dryRun: false, estimate: false, concurrency: 2,
-      repoPath: tmpDir, outputPath: outputDir,
+      provider: 'openai',
+      dryRun: false,
+      estimate: false,
+      concurrency: 2,
+      repoPath: tmpDir,
+      outputPath: outputDir,
     });
 
     await writeFile(path.join(tmpDir, 'src/new-module.ts'), 'export const X = 42;\n');
 
-    await new UpdatePipeline({ complete: vi.fn().mockResolvedValue('new summary') } as LLMProvider).run({
-      provider: 'openai', repoPath: tmpDir, outputPath: outputDir, concurrency: 2,
+    await new UpdatePipeline({
+      complete: vi.fn().mockResolvedValue('new summary'),
+    } as LLMProvider).run({
+      provider: 'openai',
+      repoPath: tmpDir,
+      outputPath: outputDir,
+      concurrency: 2,
     });
 
     const manifest = JSON.parse(await readFile(path.join(outputDir, '.manifest.json'), 'utf-8'));

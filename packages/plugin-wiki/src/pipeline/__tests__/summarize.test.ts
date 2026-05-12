@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { LLMProvider } from '@repowiki/core';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AnalyzedNode } from '../../types.js';
 import { summarizeModule, summarizeParent } from '../summarize.js';
 
@@ -42,9 +42,7 @@ describe('summarizeModule', () => {
   it('retries once on 429 and returns the retry result', async () => {
     vi.useFakeTimers();
     const p: LLMProvider = {
-      complete: vi.fn()
-        .mockRejectedValueOnce({ status: 429 })
-        .mockResolvedValueOnce('retry ok'),
+      complete: vi.fn().mockRejectedValueOnce({ status: 429 }).mockResolvedValueOnce('retry ok'),
     };
     const promise = summarizeModule(mockModule, p);
     await vi.advanceTimersByTimeAsync(5000);

@@ -16,10 +16,7 @@ export async function callWithRetry<T>(fn: () => Promise<T>): Promise<T> {
   }
 }
 
-export async function summarizeModule(
-  node: AnalyzedNode,
-  provider: LLMProvider,
-): Promise<string> {
+export async function summarizeModule(node: AnalyzedNode, provider: LLMProvider): Promise<string> {
   const exportList = node.exports
     .map((e) => `- ${e.kind} ${e.name}${e.jsDoc ? ` — ${e.jsDoc}` : ''}`)
     .join('\n');
@@ -37,10 +34,7 @@ export async function summarizeModule(
   return callWithRetry(() => provider.complete(messages));
 }
 
-export async function summarizeParent(
-  node: AnalyzedNode,
-  provider: LLMProvider,
-): Promise<string> {
+export async function summarizeParent(node: AnalyzedNode, provider: LLMProvider): Promise<string> {
   const childList = node.children
     .map((c) => `- ${c.title}: ${c.summary.split('.')[0]}.`)
     .join('\n');
