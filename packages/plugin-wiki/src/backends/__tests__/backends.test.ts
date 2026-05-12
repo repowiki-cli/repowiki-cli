@@ -106,4 +106,24 @@ describe('LocalMarkdownBackend', () => {
     const result = await backend.query([1, 2, 3]);
     expect(result).toEqual([]);
   });
+
+  it('delete() removes an existing file', async () => {
+    const backend = new LocalMarkdownBackend(tmpDir);
+    const absPath = path.join(tmpDir, 'to-delete.md');
+    await writeFile(absPath, '# delete me');
+    await backend.delete(absPath);
+    await expect(readFile(absPath)).rejects.toThrow();
+  });
+
+  it('delete() is a no-op when file does not exist', async () => {
+    const backend = new LocalMarkdownBackend(tmpDir);
+    const absPath = path.join(tmpDir, 'nonexistent.md');
+    await expect(backend.delete(absPath)).resolves.toBeUndefined();
+  });
+
+  it('delete() throws on path traversal attempt', async () => {
+    const backend = new LocalMarkdownBackend(tmpDir);
+    const outsidePath = path.resolve(tmpDir, '../escape.md');
+    await expect(backend.delete(outsidePath)).rejects.toThrow('Path traversal');
+  });
 });

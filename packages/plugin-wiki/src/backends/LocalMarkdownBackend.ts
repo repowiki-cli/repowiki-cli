@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
 import * as path from 'node:path';
 import type { OutputBackend, WikiNode } from '@repowiki/core';
 
@@ -24,6 +24,18 @@ export class LocalMarkdownBackend implements OutputBackend {
       throw new Error(`Path traversal detected: ${relativePath}`);
     }
     return readFile(resolved, 'utf-8');
+  }
+
+  async delete(absolutePath: string): Promise<void> {
+    const resolved = path.resolve(absolutePath);
+    if (!resolved.startsWith(this.outputPath + path.sep) && resolved !== this.outputPath) {
+      throw new Error(`Path traversal detected: ${absolutePath}`);
+    }
+    try {
+      await unlink(resolved);
+    } catch (err: unknown) {
+      if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err;
+    }
   }
 
   async query(_embedding: number[]): Promise<WikiNode[]> {
