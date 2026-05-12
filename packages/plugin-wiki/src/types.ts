@@ -54,6 +54,24 @@ export interface Manifest {
   files: Record<string, { hash: string; wikiPath: string }>;
 }
 
+export interface ManifestV2 {
+  version: 2;
+  generatedAt: string;
+  provider: string;
+  files: Record<string, { hash: string; wikiPath: string; summary: string }>;
+}
+
+export type AnyManifest = Manifest | ManifestV2;
+
+export interface UpdateOptions {
+  provider: string;
+  model?: string;
+  apiKey?: string;
+  repoPath: string;
+  outputPath: string;
+  concurrency: number;
+}
+
 /** Returns the absolute output .md file path for a given AnalyzedNode. */
 export function wikiFilePath(node: AnalyzedNode, outputPath: string): string {
   switch (node.type) {
