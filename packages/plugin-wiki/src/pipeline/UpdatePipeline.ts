@@ -43,12 +43,14 @@ export class UpdatePipeline {
     const stale: string[] = [];
     const newFiles: string[] = [];
     const deleted: string[] = [];
+    const hashCache = new Map<string, string>();
 
     for (const [relPath] of fileMap) {
       if (!m.files[relPath]) {
         newFiles.push(relPath);
       } else {
         const hash = await manifestMgr.computeHash(nodePath.join(repoPath, relPath));
+        hashCache.set(relPath, hash);
         if (hash !== m.files[relPath].hash) stale.push(relPath);
       }
     }
@@ -138,7 +140,7 @@ export class UpdatePipeline {
     for (const relPath of [...stale, ...newFiles]) {
       const node = fileMap.get(relPath);
       if (!node) continue;
-      const hash = await manifestMgr.computeHash(nodePath.join(repoPath, relPath));
+      const hash = hashCache.get(relPath) ?? await manifestMgr.computeHash(nodePath.join(repoPath, relPath));
       const wikiPathRel = nodePath
         .relative(repoPath, wikiFilePath(node, outputPath))
         .replace(/\\/g, '/');
