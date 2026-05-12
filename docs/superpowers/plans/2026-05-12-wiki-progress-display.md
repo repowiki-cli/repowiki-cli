@@ -360,7 +360,7 @@ git commit -m "feat: add ProgressEvent types and createProgressReporter factory"
 
 - [ ] **Step 1: Add `quiet` and `onProgress` to `GenerateOptions`**
 
-In `packages/plugin-wiki/src/types.ts`, add the import after the two existing imports at line 2:
+In `packages/plugin-wiki/src/types.ts`, add the import after the last existing import line (currently line 2: `import type { WikiNode } from '@repowiki/core'`):
 
 ```typescript
 import type { ProgressReporter } from './progress.js';
@@ -411,7 +411,7 @@ git commit -m "feat: add quiet and onProgress fields to GenerateOptions"
 
 Open `packages/plugin-wiki/src/pipeline/__tests__/pipeline.test.ts`.
 
-**Fix the 5 existing `pipeline.run()` calls** — add `quiet: false` to each. Find every occurrence of:
+**Fix the 5 existing `pipeline.run()` calls inside the `GeneratePipeline` describe block (lines 40–112)** — add `quiet: false` to each. The `ValidatePipeline` describe block also has `pipeline.run()` calls but those go to a different class and do not need this change. Find every occurrence of:
 
 ```typescript
 await pipeline.run({
@@ -537,6 +537,28 @@ describe('GeneratePipeline – progress events', () => {
       }),
     ).resolves.not.toThrow();
   });
+
+  it('emits abort event then re-throws on non-429 LLM error', async () => {
+    const failingProvider: LLMProvider = {
+      complete: vi
+        .fn()
+        .mockRejectedValue(Object.assign(new Error('API error'), { status: 500 })),
+    };
+    const events: ProgressEvent[] = [];
+    await expect(
+      new GeneratePipeline(failingProvider).run({
+        provider: 'openai',
+        dryRun: false,
+        estimate: false,
+        concurrency: 2,
+        repoPath: tmpDir,
+        outputPath: outputDir,
+        quiet: false,
+        onProgress: (e) => events.push(e),
+      }),
+    ).rejects.toThrow('API error');
+    expect(events.some((e) => e.type === 'abort')).toBe(true);
+  });
 });
 ```
 
@@ -639,41 +661,48 @@ export class GeneratePipeline {
     }
 
     // 4. Summarize modules (concurrent batches, with 429 retry)
-    const summaryMap = new Map<AnalyzedNode, string>();
-    report({ type: 'summarize-modules:start', total: modules.length });
-    const modulesT0 = Date.now();
-    let completed = 0;
-    for (let i = 0; i < modules.length; i += concurrency) {
-      const batch = modules.slice(i, i + concurrency);
-      const results = await Promise.all(
-        batch.map(async (node) => {
-          const prompt = buildModulePrompt(node);
-          const messages: import('@repowiki/core').ChatMessage[] = [
-            { role: 'system', content: prompt.system },
-            { role: 'user', content: prompt.user },
-          ];
-          const summary = await callWithRetry(() => this.provider.complete(messages));
-          completed++;
-          report({
-            type: 'summarize-modules:item',
-            index: completed,
-            total: modules.length,
-            path: node.path,
-          });
-          return { node, summary };
-        }),
-      );
-      for (const { node, summary } of results) {
-        summaryMap.set(node, summary);
-      }
-    }
-    for (const [node, summary] of summaryMap) {
-      node.summary = summary;
-    }
-    report({ type: 'summarize-modules:done', elapsed: Date.now() - modulesT0 });
-
     // 5. Summarize non-leaf nodes bottom-up
-    await summarizeNonLeaves(root, this.provider, report);
+    // Both phases are wrapped: a non-429 LLM error emits abort then re-throws so
+    // the TTY reporter can clear its dirty progress line before the process exits.
+    const summaryMap = new Map<AnalyzedNode, string>();
+    try {
+      report({ type: 'summarize-modules:start', total: modules.length });
+      const modulesT0 = Date.now();
+      let completed = 0;
+      for (let i = 0; i < modules.length; i += concurrency) {
+        const batch = modules.slice(i, i + concurrency);
+        const results = await Promise.all(
+          batch.map(async (node) => {
+            const prompt = buildModulePrompt(node);
+            const messages: import('@repowiki/core').ChatMessage[] = [
+              { role: 'system', content: prompt.system },
+              { role: 'user', content: prompt.user },
+            ];
+            const summary = await callWithRetry(() => this.provider.complete(messages));
+            completed++;
+            report({
+              type: 'summarize-modules:item',
+              index: completed,
+              total: modules.length,
+              path: node.path,
+            });
+            return { node, summary };
+          }),
+        );
+        for (const { node, summary } of results) {
+          summaryMap.set(node, summary);
+        }
+      }
+      for (const [node, summary] of summaryMap) {
+        node.summary = summary;
+      }
+      report({ type: 'summarize-modules:done', elapsed: Date.now() - modulesT0 });
+
+      await summarizeNonLeaves(root, this.provider, report);
+    } catch (err) {
+      report({ type: 'abort', reason: `LLM error: ${String(err)}` });
+      throw err;
+    }
 
     // 6. Generate Markdown content
     const wikiEntries = collectAll(root).map((node) => ({
@@ -1035,13 +1064,13 @@ Expected: build succeeds
 node packages/cli/bin/run.js wiki:generate --provider=dashscope --dry-run
 ```
 
-Expected: prints "Files that would be written:" list (dry-run exits before LLM phase, no progress output)
+Expected: on TTY prints "Analyzing repository..." then "✓ Analyzed N modules" then the file list; on CI prints "Analyzing repository...\n" then the file list. No LLM summarization progress (dry-run exits before that phase).
 
 ```bash
 node packages/cli/bin/run.js wiki:generate --provider=dashscope --estimate
 ```
 
-Expected: prints estimated token count (exits before LLM phase, no progress output)
+Expected: on TTY prints "Analyzing repository..." then "✓ Analyzed N modules" then the token estimate; on CI prints "Analyzing repository...\n" then the token estimate. No LLM summarization progress.
 
 - [ ] **Step 6: Commit**
 
