@@ -78,10 +78,11 @@ describe('GeneratePipeline', () => {
       outputPath: outputDir,
     });
     const manifest = JSON.parse(await readFile(path.join(outputDir, '.manifest.json'), 'utf-8'));
-    expect(manifest.version).toBe(1);
+    expect(manifest.version).toBe(2);
     const entries = Object.values(manifest.files) as { hash: string }[];
     expect(entries.length).toBeGreaterThan(0);
     expect(entries.every((e) => e.hash.startsWith('sha256:'))).toBe(true);
+    expect(entries.every((e) => typeof (e as { summary?: string }).summary === 'string')).toBe(true);
   });
 
   it('--dry-run writes no files', async () => {
