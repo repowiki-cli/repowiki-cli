@@ -592,7 +592,7 @@ import type { ProgressEvent, ProgressReporter } from '../progress.js';
 import type { AnalyzedNode, GenerateOptions, HarnessGenerator } from '../types.js';
 import { collectNodes, wikiFilePath } from '../types.js';
 import { collectAll, renderMarkdown } from './render.js';
-import { callWithRetry, summarizeParent } from './summarize.js';
+import { summarizeModule, summarizeParent } from './summarize.js';
 
 export class GeneratePipeline {
   private readonly provider: LLMProvider;
@@ -677,21 +677,7 @@ export class GeneratePipeline {
         const batch = modules.slice(i, i + concurrency);
         const results = await Promise.all(
           batch.map(async (node) => {
-            const exportList = node.exports
-              .map((e) => `- ${e.kind} ${e.name}${e.jsDoc ? ` — ${e.jsDoc}` : ''}`)
-              .join('\n');
-            const messages = [
-              {
-                role: 'system' as const,
-                content:
-                  'You are a technical writer. Generate concise wiki entries for a software codebase. Be specific and factual. Do not hallucinate APIs that are not listed.',
-              },
-              {
-                role: 'user' as const,
-                content: `Write a 2–3 sentence summary for this TypeScript module.\n\nPath: ${node.path}\nExports:\n${exportList || '(none)'}`,
-              },
-            ];
-            const summary = await callWithRetry(() => this.provider.complete(messages));
+            const summary = await summarizeModule(node, this.provider);
             completed++;
             report({
               type: 'summarize-modules:item',
@@ -847,7 +833,7 @@ Expected: one remaining error on `commands/wiki/generate.ts` (missing `quiet`) �
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/plugin-wiki/src/pipeline/GeneratePipeline.ts packages/plugin-wiki/src/pipeline/__tests__/pipeline.test.ts
+git add packages/plugin-wiki/src/pipeline/GeneratePipeline.ts packages/plugin-wiki/src/pipeline/__tests__/pipeline.test.ts packages/plugin-wiki/src/pipeline/__tests__/UpdatePipeline.test.ts
 git commit -m "feat: emit progress events from GeneratePipeline; refactor summarizeNonLeaves to flat traversal"
 ```
 
