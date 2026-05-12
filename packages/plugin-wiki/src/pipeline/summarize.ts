@@ -1,18 +1,16 @@
 import type { LLMProvider } from '@repowiki/core';
 import type { AnalyzedNode } from '../types.js';
 
+const RATE_LIMIT_DELAY_MS = 5000;
+
 export async function callWithRetry<T>(fn: () => Promise<T>): Promise<T> {
   try {
     return await fn();
   } catch (err: unknown) {
     const status = (err as { status?: number })?.status;
     if (status === 429) {
-      await new Promise<void>((resolve) => setTimeout(resolve, 5000));
-      try {
-        return await fn();
-      } catch (retryErr: unknown) {
-        throw retryErr;
-      }
+      await new Promise<void>((resolve) => setTimeout(resolve, RATE_LIMIT_DELAY_MS));
+      return fn();
     }
     throw err;
   }
