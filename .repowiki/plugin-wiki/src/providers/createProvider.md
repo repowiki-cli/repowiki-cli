@@ -3,7 +3,7 @@
 > Path: `plugin-wiki/src/providers/createProvider`
 
 ## Overview
-The `createProvider` module provides functions for creating and managing providers within the application. It exports `createProvider`, which is used to instantiate a provider, and `providerEnvKey`, which returns the corresponding environment variable name for a given provider key, or `null` if none is required. This module helps in configuring and accessing provider settings through environment variables.
+The `createProvider` module provides functions for creating and managing providers within the application. It exports `createProvider`, which is used to instantiate a provider, and `providerEnvKey`, which returns the corresponding environment variable name for a given provider key, or null if none is needed. This module helps in abstracting provider configuration and environment integration.
 
 ## Exports
 - `function createProvider`

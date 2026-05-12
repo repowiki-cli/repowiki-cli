@@ -3,7 +3,8 @@
 > Path: `plugin-wiki/src/analyzers/typescript/queries`
 
 ## Overview
-The `extractExports` function is part of the TypeScript analyzer module and is responsible for extracting exported symbols from a TypeScript file. It processes the AST (Abstract Syntax Tree) to identify and collect export declarations. This function is used to gather information about what is being exported for documentation or dependency analysis purposes.
+**Module:** `plugin-wiki/src/analyzers/typescript/queries`  
+**Summary:** This module provides functionality for analyzing TypeScript code to extract exported symbols. It includes the `extractExports` function, which is used to identify and collect exported declarations from a given TypeScript source file. The function is designed to support static analysis and documentation generation within the plugin ecosystem.
 
 ## Exports
 - `function extractExports`

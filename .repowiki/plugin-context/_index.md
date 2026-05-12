@@ -3,7 +3,7 @@
 > Path: `plugin-context`
 
 ## Overview
-The package serves as a core module in the TypeScript project, focusing on plugin system functionality. It includes the `plugin-context` directory, which provides foundational context management capabilities essential for plugin operations. This package is critical for enabling dynamic and extensible application behavior through plugins.
+The `node` package in the TypeScript project includes the `src/plugin-context` directory, which provides the core functionality for managing plugin contexts. It serves as a central module for handling context-related operations within the application. This package is essential for enabling dynamic plugin interactions and state management.
 
 ## Children
 - [src](./src/_index.md)

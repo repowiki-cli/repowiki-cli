@@ -3,7 +3,7 @@
 > Path: `plugin-spec/src/commands/spec`
 
 ## Overview
-The directory contains command handlers for specification-related tasks in a TypeScript project. It includes the `SpecAtdd` class for ATDD commands, the `SpecReview` class for review operations, and the `SpecSdd` class for SDD management. Each class is located in its own subdirectory under `plugin-spec/src/commands/spec`.
+The `spec` directory in the TypeScript project contains modules for handling different types of specification-related commands. It includes the `atdd` module, which manages ATDD commands via the `SpecAtdd` class, the `review` module for specification reviews using the `SpecReview` class, and the `sdd` module for SDD-related commands through the `SpecSdd` class. These modules collectively support the plugin specification system's command structure for various development documentation processes.
 
 ## Children
 - [atdd](./atdd.md)
