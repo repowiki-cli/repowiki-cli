@@ -79,12 +79,14 @@ Two new fields added to `GenerateOptions`:
 ```typescript
 export interface GenerateOptions {
   // ... existing fields ...
-  quiet: boolean          // default false; --quiet flag suppresses all progress
+  quiet: boolean          // passed through from command layer; NOT read by the pipeline itself
   onProgress?: ProgressReporter
 }
 ```
 
 `onProgress` is optional; the pipeline defaults to a no-op when absent. Reporter errors are caught and silently swallowed inside the pipeline's `report()` wrapper — a faulty reporter must not abort the LLM pipeline.
+
+**Note:** `quiet` is carried in `GenerateOptions` for forward compatibility (e.g., `wiki:update` reuse) but the pipeline never reads it. The command layer uses `quiet` to decide which reporter to create via `createProgressReporter({ quiet })`, and passes the resulting reporter as `onProgress`. The pipeline only cares about `onProgress`.
 
 ---
 
@@ -126,7 +128,7 @@ One line per pipeline phase, no in-place updates. Item-level events are ignored.
 Analyzing repository...
 Summarizing 25 modules...
 Summarizing 5 packages/directories...
-Writing 30 wiki files...
+Written 30 wiki files
 Done: 30 wiki files, 30 LLM calls, 14.1s
 ```
 
@@ -134,7 +136,7 @@ Event mapping:
 - `analyze:start` → `'Analyzing repository...\n'`
 - `summarize-modules:start` → `'Summarizing N modules...\n'`
 - `summarize-parents:start` → `'Summarizing N packages/directories...\n'`
-- `write:done` → `'Writing N wiki files...\n'` *(printed when write completes)*
+- `write:done` → `'Written N wiki files\n'` *(printed when write completes; past tense to match TTY reporter)*
 - `finished` → `'Done: N wiki files, M LLM calls, Xs\n'`
 
 ### `--quiet` mode
@@ -270,13 +272,13 @@ The existing `process.stdout.write('Done: ...\n')` at the end of `GeneratePipeli
 | `plugin-wiki/src/pipeline/GeneratePipeline.ts` | Wrap reporter; emit events; refactor `summarizeNonLeaves`; remove final `process.stdout.write` |
 | `plugin-wiki/src/commands/wiki/generate.ts` | Add `--quiet` flag; create and pass reporter |
 | `plugin-wiki/src/__tests__/progress.test.ts` | **New** — unit tests for TTY and CI reporter output |
-| `plugin-wiki/src/pipeline/__tests__/generate-pipeline.test.ts` | Update to pass spy reporter; assert event sequence |
+| `plugin-wiki/src/pipeline/__tests__/pipeline.test.ts` | Update to pass spy reporter; assert event sequence |
 
 ---
 
 ## Testing Strategy
 
-### Pipeline tests (`generate-pipeline.test.ts`)
+### Pipeline tests (`pipeline.test.ts`)
 
 Pass a spy `ProgressReporter` that records all emitted events. Assert:
 - `analyze:start` fires before `analyze:done`

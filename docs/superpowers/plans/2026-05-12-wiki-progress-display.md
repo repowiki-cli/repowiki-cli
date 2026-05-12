@@ -111,7 +111,7 @@ describe('createProgressReporter – CI (non-TTY)', () => {
 
   it('prints file count on write:done', () => {
     createProgressReporter({ quiet: false })({ type: 'write:done', fileCount: 30, elapsed: 200 });
-    expect(spy).toHaveBeenCalledWith('Writing 30 wiki files...\n');
+    expect(spy).toHaveBeenCalledWith('Written 30 wiki files\n');
   });
 
   it('prints Done summary on finished', () => {
@@ -253,7 +253,7 @@ function createCiReporter(): ProgressReporter {
         process.stdout.write(`Summarizing ${event.total} packages/directories...\n`);
         break;
       case 'write:done':
-        process.stdout.write(`Writing ${event.fileCount} wiki files...\n`);
+        process.stdout.write(`Written ${event.fileCount} wiki files\n`);
         break;
       case 'finished':
         process.stdout.write(
@@ -379,7 +379,7 @@ export interface GenerateOptions {
   concurrency: number;
   repoPath: string;
   outputPath: string;
-  quiet: boolean;
+  quiet: boolean;       // consumed only by the command layer to build the reporter; pipeline does NOT read this
   onProgress?: ProgressReporter;
 }
 ```
@@ -406,12 +406,13 @@ git commit -m "feat: add quiet and onProgress fields to GenerateOptions"
 **Files:**
 - Modify: `packages/plugin-wiki/src/pipeline/GeneratePipeline.ts`
 - Modify: `packages/plugin-wiki/src/pipeline/__tests__/pipeline.test.ts`
+- Modify: `packages/plugin-wiki/src/pipeline/__tests__/UpdatePipeline.test.ts`
 
 - [ ] **Step 1: Add new failing tests to pipeline test file**
 
 Open `packages/plugin-wiki/src/pipeline/__tests__/pipeline.test.ts`.
 
-**Fix the 5 existing `pipeline.run()` calls inside the `GeneratePipeline` describe block (lines 40–112)** — add `quiet: false` to each. The `ValidatePipeline` describe block also has `pipeline.run()` calls but those go to a different class and do not need this change. Find every occurrence of:
+**Fix the 5 existing `pipeline.run()` calls inside the `GeneratePipeline` describe block (lines 40–112)** — add `quiet: false` to each. The `ValidatePipeline` describe block also has `pipeline.run()` calls but those go to a different class and do not need this change. Find every occurrence inside `describe('GeneratePipeline', ...)` of:
 
 ```typescript
 await pipeline.run({
@@ -424,7 +425,9 @@ await pipeline.run({
 });
 ```
 
-and add `quiet: false,` before the closing brace. There are 5 such calls in the existing file (in the `writes _index.md`, `writes per-module .md files`, `writes .manifest.json`, `LLM complete() is called`, and `--dry-run writes no files` tests).
+and add `quiet: false,` before the closing brace. There are exactly 5 such calls inside the `describe('GeneratePipeline', ...)` block (in the `writes _index.md`, `writes per-module .md files`, `writes .manifest.json`, `LLM complete() is called`, and `--dry-run writes no files` tests). **Do not modify calls in the `ValidatePipeline` describe block — those target a different class.**
+
+Also open `packages/plugin-wiki/src/pipeline/__tests__/UpdatePipeline.test.ts` and add `quiet: false,` to the 4 `new GeneratePipeline(...).run({...})` calls at lines 85, 113, 144, and 178 — these are setup helpers that call `GeneratePipeline.run()` directly and will also fail typecheck once `quiet` becomes required.
 
 **Then add these imports and new describe block** at the top of the file (after existing imports):
 
@@ -586,9 +589,10 @@ import { ClaudeCodeHarness } from '../harness/ClaudeCodeHarness.js';
 import { CursorHarness } from '../harness/CursorHarness.js';
 import { writeHarnessBlock } from '../harness/HarnessWriter.js';
 import type { ProgressEvent, ProgressReporter } from '../progress.js';
-import type { AnalyzedNode, GenerateOptions } from '../types.js';
+import type { AnalyzedNode, GenerateOptions, HarnessGenerator } from '../types.js';
 import { collectNodes, wikiFilePath } from '../types.js';
-import type { HarnessGenerator } from '../types.js';
+import { collectAll, renderMarkdown } from './render.js';
+import { callWithRetry, summarizeParent } from './summarize.js';
 
 export class GeneratePipeline {
   private readonly provider: LLMProvider;
@@ -673,10 +677,19 @@ export class GeneratePipeline {
         const batch = modules.slice(i, i + concurrency);
         const results = await Promise.all(
           batch.map(async (node) => {
-            const prompt = buildModulePrompt(node);
-            const messages: import('@repowiki/core').ChatMessage[] = [
-              { role: 'system', content: prompt.system },
-              { role: 'user', content: prompt.user },
+            const exportList = node.exports
+              .map((e) => `- ${e.kind} ${e.name}${e.jsDoc ? ` — ${e.jsDoc}` : ''}`)
+              .join('\n');
+            const messages = [
+              {
+                role: 'system' as const,
+                content:
+                  'You are a technical writer. Generate concise wiki entries for a software codebase. Be specific and factual. Do not hallucinate APIs that are not listed.',
+              },
+              {
+                role: 'user' as const,
+                content: `Write a 2–3 sentence summary for this TypeScript module.\n\nPath: ${node.path}\nExports:\n${exportList || '(none)'}`,
+              },
             ];
             const summary = await callWithRetry(() => this.provider.complete(messages));
             completed++;
@@ -710,8 +723,8 @@ export class GeneratePipeline {
       content: renderMarkdown(node, outputPath),
     }));
 
-    // 7. Compute source file hashes
-    const manifestFiles: Record<string, { hash: string; wikiPath: string }> = {};
+    // 7. Compute source file hashes (v2 manifest includes summary)
+    const manifestFiles: Record<string, { hash: string; wikiPath: string; summary: string }> = {};
     const manifestMgr = new ManifestManager(outputPath);
     for (const [rawFile, moduleNode] of fileMap) {
       const absPath = nodePath.join(repoPath, rawFile);
@@ -719,7 +732,7 @@ export class GeneratePipeline {
       const wp = nodePath
         .relative(repoPath, wikiFilePath(moduleNode, outputPath))
         .replace(/\\/g, '/');
-      manifestFiles[rawFile] = { hash, wikiPath: wp };
+      manifestFiles[rawFile] = { hash, wikiPath: wp, summary: moduleNode.summary };
     }
 
     // 8. Write files
@@ -730,10 +743,10 @@ export class GeneratePipeline {
     }
     report({ type: 'write:done', fileCount: wikiEntries.length, elapsed: Date.now() - writeT0 });
 
-    // 9. Save manifest
+    // 9. Save v2 manifest
     try {
       await manifestMgr.save({
-        version: 1,
+        version: 2,
         generatedAt: new Date().toISOString(),
         provider: providerKey,
         files: manifestFiles,
@@ -768,33 +781,6 @@ export class GeneratePipeline {
 
 // --- helpers ---
 
-interface Prompt {
-  system: string;
-  user: string;
-}
-
-function buildModulePrompt(node: AnalyzedNode): Prompt {
-  const exportList = node.exports
-    .map((e) => `- ${e.kind} ${e.name}${e.jsDoc ? ` — ${e.jsDoc}` : ''}`)
-    .join('\n');
-  return {
-    system:
-      'You are a technical writer. Generate concise wiki entries for a software codebase. Be specific and factual. Do not hallucinate APIs that are not listed.',
-    user: `Write a 2–3 sentence summary for this TypeScript module.\n\nPath: ${node.path}\nExports:\n${exportList || '(none)'}`,
-  };
-}
-
-function buildParentPrompt(node: AnalyzedNode): Prompt {
-  const childList = node.children
-    .map((c) => `- ${c.title}: ${c.summary.split('.')[0]}.`)
-    .join('\n');
-  return {
-    system:
-      'You are a technical writer. Generate concise wiki entries for a software codebase. Be specific and factual.',
-    user: `Write a 2–3 sentence summary for this ${node.type} node in a TypeScript project.\nIt contains the following children:\n${childList}`,
-  };
-}
-
 function collectNonLeavesBottomUp(root: AnalyzedNode): AnalyzedNode[] {
   const result: AnalyzedNode[] = [];
   function visit(node: AnalyzedNode): void {
@@ -821,60 +807,9 @@ async function summarizeNonLeaves(
       total: nodes.length,
       title: node.title,
     });
-    const prompt = buildParentPrompt(node);
-    node.summary = await provider.complete([
-      { role: 'system', content: prompt.system },
-      { role: 'user', content: prompt.user },
-    ]);
+    node.summary = await summarizeParent(node, provider);
   }
   report({ type: 'summarize-parents:done', elapsed: Date.now() - t0 });
-}
-
-function collectAll(node: AnalyzedNode): AnalyzedNode[] {
-  return [node, ...node.children.flatMap(collectAll)];
-}
-
-function renderMarkdown(node: AnalyzedNode, outputPath: string): string {
-  const filePath = wikiFilePath(node, outputPath);
-  const lines: string[] = [
-    `# ${node.title}`,
-    '',
-    `> Path: \`${node.path}\``,
-    '',
-    '## Overview',
-    node.summary,
-  ];
-
-  if (node.type === 'module' && node.exports.length > 0) {
-    lines.push('', '## Exports');
-    for (const e of node.exports) {
-      lines.push(`- \`${e.kind} ${e.name}\`${e.jsDoc ? ` — ${e.jsDoc}` : ''}`);
-    }
-  }
-
-  if (node.children.length > 0) {
-    lines.push('', '## Children');
-    for (const child of node.children) {
-      const childFile = wikiFilePath(child, outputPath);
-      const rel = nodePath.relative(nodePath.dirname(filePath), childFile).replace(/\\/g, '/');
-      lines.push(`- [${child.title}](./${rel})`);
-    }
-  }
-
-  return `${lines.join('\n')}\n`;
-}
-
-async function callWithRetry<T>(fn: () => Promise<T>): Promise<T> {
-  try {
-    return await fn();
-  } catch (err: unknown) {
-    const status = (err as { status?: number })?.status;
-    if (status === 429) {
-      await new Promise((resolve) => setTimeout(resolve, 5000));
-      return fn();
-    }
-    throw err;
-  }
 }
 
 async function checkGitignoreWarning(repoPath: string, outputPath: string): Promise<void> {
