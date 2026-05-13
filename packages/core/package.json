@@ -1,6 +1,6 @@
 {
   "name": "@repowiki/core",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Shared interfaces and types for repowiki-cli",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

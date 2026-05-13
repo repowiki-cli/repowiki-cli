@@ -1,6 +1,6 @@
 {
   "name": "@repowiki/plugin-context",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Context routing plugin for repowiki-cli",
   "main": "./dist/index.js",
   "exports": {
