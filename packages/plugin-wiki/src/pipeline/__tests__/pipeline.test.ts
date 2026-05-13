@@ -149,9 +149,7 @@ describe('ValidatePipeline', () => {
 
   it('exits 0 when manifest matches current source files', async () => {
     const mgr = new ManifestManager(outputDir);
-    const { TypeScriptAnalyzer } = await import(
-      '../../analyzers/typescript/TypeScriptAnalyzer.js'
-    );
+    const { TypeScriptAnalyzer } = await import('../../analyzers/typescript/TypeScriptAnalyzer.js');
     const analyzer = new TypeScriptAnalyzer();
     const { fileMap } = await analyzer.analyzeWithFileMap(tmpDir);
     const manifestFiles: Manifest['files'] = {};
@@ -175,9 +173,7 @@ describe('ValidatePipeline', () => {
 
   it('exits 1 and reports stale when a file changes', async () => {
     const mgr = new ManifestManager(outputDir);
-    const { TypeScriptAnalyzer } = await import(
-      '../../analyzers/typescript/TypeScriptAnalyzer.js'
-    );
+    const { TypeScriptAnalyzer } = await import('../../analyzers/typescript/TypeScriptAnalyzer.js');
     const analyzer = new TypeScriptAnalyzer();
     const { fileMap } = await analyzer.analyzeWithFileMap(tmpDir);
     const manifestFiles: Manifest['files'] = {};
@@ -203,9 +199,7 @@ describe('ValidatePipeline', () => {
 
   it('exits 1 and reports deleted when a manifest file is missing from disk', async () => {
     const mgr = new ManifestManager(outputDir);
-    const { TypeScriptAnalyzer } = await import(
-      '../../analyzers/typescript/TypeScriptAnalyzer.js'
-    );
+    const { TypeScriptAnalyzer } = await import('../../analyzers/typescript/TypeScriptAnalyzer.js');
     const analyzer = new TypeScriptAnalyzer();
     const { fileMap } = await analyzer.analyzeWithFileMap(tmpDir);
     const manifestFiles: Record<string, { hash: string; wikiPath: string }> = {};
