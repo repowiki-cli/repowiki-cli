@@ -89,6 +89,7 @@ describe('UpdatePipeline', () => {
       concurrency: 2,
       repoPath: tmpDir,
       outputPath: outputDir,
+      quiet: false,
     });
 
     const updateProvider: LLMProvider = { complete: vi.fn() };
@@ -117,6 +118,7 @@ describe('UpdatePipeline', () => {
       concurrency: 2,
       repoPath: tmpDir,
       outputPath: outputDir,
+      quiet: false,
     });
     const genCallCount = vi.mocked(generateProvider.complete).mock.calls.length;
 
@@ -148,6 +150,7 @@ describe('UpdatePipeline', () => {
       concurrency: 2,
       repoPath: tmpDir,
       outputPath: outputDir,
+      quiet: false,
     });
 
     const manifestBefore = JSON.parse(
@@ -182,6 +185,7 @@ describe('UpdatePipeline', () => {
       concurrency: 2,
       repoPath: tmpDir,
       outputPath: outputDir,
+      quiet: false,
     });
 
     await writeFile(path.join(tmpDir, 'src/new-module.ts'), 'export const X = 42;\n');

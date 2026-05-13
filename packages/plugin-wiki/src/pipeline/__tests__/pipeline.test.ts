@@ -3,6 +3,7 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import type { LLMProvider } from '@repowiki/core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { ProgressEvent } from '../../progress.js';
 import { GeneratePipeline } from '../GeneratePipeline.js';
 
 async function makeTmpDir(): Promise<string> {
@@ -46,6 +47,7 @@ describe('GeneratePipeline', () => {
       concurrency: 2,
       repoPath: tmpDir,
       outputPath: outputDir,
+      quiet: false,
     });
     const content = await readFile(path.join(outputDir, '_index.md'), 'utf-8');
     expect(content).toContain('# ');
@@ -60,6 +62,7 @@ describe('GeneratePipeline', () => {
       concurrency: 2,
       repoPath: tmpDir,
       outputPath: outputDir,
+      quiet: false,
     });
     const { readdir } = await import('node:fs/promises');
     const entries = (await readdir(outputDir, { recursive: true })) as string[];
@@ -76,6 +79,7 @@ describe('GeneratePipeline', () => {
       concurrency: 2,
       repoPath: tmpDir,
       outputPath: outputDir,
+      quiet: false,
     });
     const manifest = JSON.parse(await readFile(path.join(outputDir, '.manifest.json'), 'utf-8'));
     expect(manifest.version).toBe(2);
@@ -96,6 +100,7 @@ describe('GeneratePipeline', () => {
       concurrency: 2,
       repoPath: tmpDir,
       outputPath: outputDir,
+      quiet: false,
     });
     await expect(stat(outputDir)).rejects.toThrow();
   });
@@ -109,6 +114,7 @@ describe('GeneratePipeline', () => {
       concurrency: 2,
       repoPath: tmpDir,
       outputPath: outputDir,
+      quiet: false,
     });
     expect(vi.mocked(mockProvider.complete).mock.calls.length).toBeGreaterThan(0);
   });
@@ -209,5 +215,129 @@ describe('ValidatePipeline', () => {
     expect(stdoutSpy.mock.calls.some((args) => String(args[0]).includes('new'))).toBe(true);
     exitSpy.mockRestore();
     stdoutSpy.mockRestore();
+  });
+});
+
+describe('GeneratePipeline – progress events', () => {
+  let tmpDir: string;
+  let outputDir: string;
+  const progressProvider: LLMProvider = {
+    complete: vi.fn().mockResolvedValue('mock summary'),
+  };
+
+  beforeEach(async () => {
+    tmpDir = await makeTmpDir();
+    outputDir = path.join(tmpDir, '.repowiki');
+    await createFixtureRepo(tmpDir);
+    vi.clearAllMocks();
+  });
+
+  afterEach(async () => {
+    await rm(tmpDir, { recursive: true, force: true });
+  });
+
+  it('emits analyze:start then analyze:done as first two events', async () => {
+    const events: ProgressEvent[] = [];
+    await new GeneratePipeline(progressProvider).run({
+      provider: 'openai',
+      dryRun: false,
+      estimate: false,
+      concurrency: 2,
+      repoPath: tmpDir,
+      outputPath: outputDir,
+      quiet: false,
+      onProgress: (e) => events.push(e),
+    });
+    expect(events[0].type).toBe('analyze:start');
+    expect(events[1].type).toBe('analyze:done');
+  });
+
+  it('emits one summarize-modules:item per module', async () => {
+    const events: ProgressEvent[] = [];
+    await new GeneratePipeline(progressProvider).run({
+      provider: 'openai',
+      dryRun: false,
+      estimate: false,
+      concurrency: 2,
+      repoPath: tmpDir,
+      outputPath: outputDir,
+      quiet: false,
+      onProgress: (e) => events.push(e),
+    });
+    const items = events.filter((e) => e.type === 'summarize-modules:item');
+    // fixture has 2 source files: src/index.ts and src/utils.ts
+    expect(items).toHaveLength(2);
+  });
+
+  it('finished.llmCalls equals the number of provider.complete calls', async () => {
+    const events: ProgressEvent[] = [];
+    await new GeneratePipeline(progressProvider).run({
+      provider: 'openai',
+      dryRun: false,
+      estimate: false,
+      concurrency: 2,
+      repoPath: tmpDir,
+      outputPath: outputDir,
+      quiet: false,
+      onProgress: (e) => events.push(e),
+    });
+    const finished = events.find((e) => e.type === 'finished') as Extract<
+      ProgressEvent,
+      { type: 'finished' }
+    >;
+    expect(finished).toBeDefined();
+    expect(vi.mocked(progressProvider.complete).mock.calls.length).toBe(finished.llmCalls);
+  });
+
+  it('finished is the last event', async () => {
+    const events: ProgressEvent[] = [];
+    await new GeneratePipeline(progressProvider).run({
+      provider: 'openai',
+      dryRun: false,
+      estimate: false,
+      concurrency: 2,
+      repoPath: tmpDir,
+      outputPath: outputDir,
+      quiet: false,
+      onProgress: (e) => events.push(e),
+    });
+    expect(events.at(-1)?.type).toBe('finished');
+  });
+
+  it('a throwing reporter does not abort the pipeline', async () => {
+    await expect(
+      new GeneratePipeline(progressProvider).run({
+        provider: 'openai',
+        dryRun: false,
+        estimate: false,
+        concurrency: 2,
+        repoPath: tmpDir,
+        outputPath: outputDir,
+        quiet: false,
+        onProgress: () => {
+          throw new Error('reporter blew up');
+        },
+      }),
+    ).resolves.not.toThrow();
+  });
+
+  it('emits abort event then re-throws on non-429 LLM error', async () => {
+    const failingProvider: LLMProvider = {
+      complete: vi.fn().mockRejectedValue(Object.assign(new Error('API error'), { status: 500 })),
+    };
+    const events: ProgressEvent[] = [];
+    await expect(
+      new GeneratePipeline(failingProvider).run({
+        provider: 'openai',
+        dryRun: false,
+        estimate: false,
+        concurrency: 2,
+        repoPath: tmpDir,
+        outputPath: outputDir,
+        quiet: false,
+        onProgress: (e) => events.push(e),
+      }),
+    ).rejects.toThrow('API error');
+    expect(events.some((e) => e.type === 'abort')).toBe(true);
   });
 });

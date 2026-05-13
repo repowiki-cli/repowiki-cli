@@ -8,6 +8,7 @@ import { ManifestManager } from '../backends/ManifestManager.js';
 import { ClaudeCodeHarness } from '../harness/ClaudeCodeHarness.js';
 import { CursorHarness } from '../harness/CursorHarness.js';
 import { writeHarnessBlock } from '../harness/HarnessWriter.js';
+import type { ProgressEvent, ProgressReporter } from '../progress.js';
 import type { AnalyzedNode, GenerateOptions, HarnessGenerator } from '../types.js';
 import { collectNodes, wikiFilePath } from '../types.js';
 import { collectAll, renderMarkdown } from './render.js';
@@ -32,29 +33,38 @@ export class GeneratePipeline {
     } = opts;
     const startTime = Date.now();
 
+    const report: ProgressReporter = (event: ProgressEvent) => {
+      try {
+        opts.onProgress?.(event);
+      } catch {
+        // swallow reporter errors — a faulty reporter must never abort the pipeline
+      }
+    };
+
     // 1. Analyze
     const analyzer = new TypeScriptAnalyzer();
+    report({ type: 'analyze:start' });
     const { root, fileMap } = await analyzer.analyzeWithFileMap(repoPath);
 
     if (root.children.length === 0) {
-      process.stdout.write(`No TypeScript/JavaScript source files found in ${repoPath}\n`);
+      report({
+        type: 'abort',
+        reason: `No TypeScript/JavaScript source files found in ${repoPath}`,
+      });
       process.exit(1);
     }
 
-    // 2. Estimate
+    const modules = collectNodes(root, 'module');
+    report({ type: 'analyze:done', moduleCount: modules.length });
+
+    // 2. Estimate (early exit)
     if (estimate) {
-      const modules = collectNodes(root, 'module');
       const { getEncoding } = await import('js-tiktoken');
       const enc = getEncoding('cl100k_base');
       let totalTokens = 0;
       for (const node of modules) {
-        const exportList = node.exports
-          .map((e) => `- ${e.kind} ${e.name}${e.jsDoc ? ` — ${e.jsDoc}` : ''}`)
-          .join('\n');
-        const prompt = `Write a 2–3 sentence summary for this TypeScript module.\n\nPath: ${node.path}\nExports:\n${exportList || '(none)'}`;
-        const system =
-          'You are a technical writer. Generate concise wiki entries for a software codebase. Be specific and factual. Do not hallucinate APIs that are not listed.';
-        totalTokens += enc.encode(prompt).length + enc.encode(system).length;
+        const prompt = buildModulePrompt(node);
+        totalTokens += enc.encode(prompt.user).length + enc.encode(prompt.system).length;
       }
       process.stdout.write(
         `Estimated tokens: ${totalTokens}. Actual cost depends on your provider's pricing. Non-OpenAI providers may differ by ±30%.\n`,
@@ -62,7 +72,7 @@ export class GeneratePipeline {
       return;
     }
 
-    // 3. Dry run preview
+    // 3. Dry run preview (early exit)
     if (dryRun) {
       const allNodes = collectAll(root);
       const wikiFiles = allNodes.map((n) =>
@@ -74,27 +84,44 @@ export class GeneratePipeline {
       return;
     }
 
-    // 4. Summarize modules (concurrent batches)
-    const modules = collectNodes(root, 'module');
-    const summaryMap = new Map<AnalyzedNode, string>();
-    for (let i = 0; i < modules.length; i += concurrency) {
-      const batch = modules.slice(i, i + concurrency);
-      const results = await Promise.all(
-        batch.map(async (node) => ({
-          node,
-          summary: await summarizeModule(node, this.provider),
-        })),
-      );
-      for (const { node, summary } of results) {
-        summaryMap.set(node, summary);
-      }
-    }
-    for (const [node, summary] of summaryMap) {
-      node.summary = summary;
-    }
-
+    // 4. Summarize modules (concurrent batches, with 429 retry)
     // 5. Summarize non-leaf nodes bottom-up
-    await summarizeNonLeaves(root, this.provider);
+    // Both phases are wrapped: a non-429 LLM error emits abort then re-throws so
+    // the TTY reporter can clear its dirty progress line before the process exits.
+    const summaryMap = new Map<AnalyzedNode, string>();
+    try {
+      report({ type: 'summarize-modules:start', total: modules.length });
+      const modulesT0 = Date.now();
+      let completed = 0;
+      for (let i = 0; i < modules.length; i += concurrency) {
+        const batch = modules.slice(i, i + concurrency);
+        const results = await Promise.all(
+          batch.map(async (node) => {
+            const summary = await summarizeModule(node, this.provider);
+            completed++;
+            report({
+              type: 'summarize-modules:item',
+              index: completed,
+              total: modules.length,
+              path: node.path,
+            });
+            return { node, summary };
+          }),
+        );
+        for (const { node, summary } of results) {
+          summaryMap.set(node, summary);
+        }
+      }
+      for (const [node, summary] of summaryMap) {
+        node.summary = summary;
+      }
+      report({ type: 'summarize-modules:done', elapsed: Date.now() - modulesT0 });
+
+      await summarizeNonLeaves(root, this.provider, report);
+    } catch (err) {
+      report({ type: 'abort', reason: `LLM error: ${String(err)}` });
+      throw err;
+    }
 
     // 6. Generate Markdown content
     const wikiEntries = collectAll(root).map((node) => ({
@@ -115,10 +142,12 @@ export class GeneratePipeline {
     }
 
     // 8. Write files
+    const writeT0 = Date.now();
     const backend = new LocalMarkdownBackend(outputPath);
     for (const { relPath, content } of wikiEntries) {
       await backend.write(relPath, content);
     }
+    report({ type: 'write:done', fileCount: wikiEntries.length, elapsed: Date.now() - writeT0 });
 
     // 9. Save v2 manifest
     try {
@@ -144,23 +173,60 @@ export class GeneratePipeline {
       await writeHarnessBlock(generator.targetFile(repoPath), generator.generate(root));
     }
 
-    // 12. Summary
+    // 12. Done
     const nonLeafCount = collectAll(root).filter((n) => n.type !== 'module').length;
     const totalLlmCalls = modules.length + nonLeafCount;
-    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-    process.stdout.write(
-      `Done: ${wikiEntries.length} wiki files, ${totalLlmCalls} LLM calls, ${elapsed}s\n`,
-    );
+    report({
+      type: 'finished',
+      fileCount: wikiEntries.length,
+      llmCalls: totalLlmCalls,
+      elapsed: Date.now() - startTime,
+    });
   }
 }
 
-async function summarizeNonLeaves(node: AnalyzedNode, provider: LLMProvider): Promise<void> {
-  for (const child of node.children) {
-    await summarizeNonLeaves(child, provider);
+// --- helpers ---
+
+function buildModulePrompt(node: AnalyzedNode): { user: string; system: string } {
+  const exportList = node.exports
+    .map((e) => `- ${e.kind} ${e.name}${e.jsDoc ? ` — ${e.jsDoc}` : ''}`)
+    .join('\n');
+  return {
+    user: `Write a 2–3 sentence summary for this TypeScript module.\n\nPath: ${node.path}\nExports:\n${exportList || '(none)'}`,
+    system:
+      'You are a technical writer. Generate concise wiki entries for a software codebase. Be specific and factual. Do not hallucinate APIs that are not listed.',
+  };
+}
+
+function collectNonLeavesBottomUp(root: AnalyzedNode): AnalyzedNode[] {
+  const result: AnalyzedNode[] = [];
+  function visit(node: AnalyzedNode): void {
+    for (const child of node.children) visit(child);
+    if (node.type !== 'module') result.push(node);
   }
-  if (node.type !== 'module') {
+  visit(root);
+  return result;
+}
+
+async function summarizeNonLeaves(
+  root: AnalyzedNode,
+  provider: LLMProvider,
+  report: ProgressReporter,
+): Promise<void> {
+  const nodes = collectNonLeavesBottomUp(root);
+  report({ type: 'summarize-parents:start', total: nodes.length });
+  const t0 = Date.now();
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i];
+    report({
+      type: 'summarize-parents:item',
+      index: i + 1,
+      total: nodes.length,
+      title: node.title,
+    });
     node.summary = await summarizeParent(node, provider);
   }
+  report({ type: 'summarize-parents:done', elapsed: Date.now() - t0 });
 }
 
 async function checkGitignoreWarning(repoPath: string, outputPath: string): Promise<void> {
