@@ -3,7 +3,7 @@
 > Path: `plugin-context/src/commands/context`
 
 ## Overview
-The `context` directory in the TypeScript project manages core functionalities related to plugin context handling. It includes the `ContextIndex` class for organizing contextual data, the `ContextQuery` class for executing queries against the context system, and the `ContextServe` class for handling local development server operations within the plugin context. Each sub-module is designed to support different aspects of context management and interaction within a plugin-based application.
+The `context` directory in the TypeScript project manages various aspects of plugin context functionality. It includes the `ContextIndex` class for handling contextual data, the `ContextQuery` class for querying context information, and the `ContextServe` class for starting a local development server. These components work together to provide a robust framework for managing and interacting with plugin contexts.
 
 ## Children
 - [index](./index.md)

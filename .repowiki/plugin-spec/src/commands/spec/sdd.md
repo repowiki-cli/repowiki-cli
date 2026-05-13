@@ -3,7 +3,7 @@
 > Path: `plugin-spec/src/commands/spec/sdd`
 
 ## Overview
-The `SpecSdd` class is part of the `plugin-spec` module and resides in the `commands/spec/sdd` directory. It is designed to handle specific command-line operations related to software specification documents. The class provides functionality for managing and processing SDD (Software Development Document) files within the plugin ecosystem.
+The `SpecSdd` class in the `plugin-spec/src/commands/spec/sdd` module is responsible for handling commands related to the SDD (Software Development Document) within the plugin specification system. It provides methods for parsing, generating, and managing SDD content according to defined standards. This module serves as a core component for integrating SDD functionality into the broader plugin architecture.
 
 ## Exports
 - `class SpecSdd`

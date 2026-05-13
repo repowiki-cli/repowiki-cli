@@ -3,7 +3,7 @@
 > Path: `plugin-wiki/src/pipeline`
 
 ## Overview
-The `pipeline` directory in the `plugin-wiki/src` folder contains classes and modules responsible for managing different stages of wiki content processing. It includes `GeneratePipeline` for orchestrating content generation, `UpdatePipeline` for handling updates, and `ValidatePipeline` for ensuring configuration validity. The directory also includes `render` for content processing and `summarize` for generating module summaries and error handling.
+The `pipeline` directory in the TypeScript project contains classes and modules responsible for managing different stages of a wiki plugin's data processing workflow. It includes `GeneratePipeline` for orchestrating generation, `UpdatePipeline` for handling updates, and `ValidatePipeline` for ensuring configuration integrity. Additionally, it contains the `render` and `summarize` modules for processing markdown and generating summaries.
 
 ## Children
 - [GeneratePipeline](./GeneratePipeline.md)

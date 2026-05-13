@@ -3,7 +3,7 @@
 > Path: `plugin-wiki/src/commands/wiki`
 
 ## Overview
-The `commands/wiki` directory in the TypeScript project contains three key modules for wiki functionality: `generate` handles content generation, `update` manages update operations, and `validate` ensures data integrity through the `WikiValidate` class. Each module is structured within its own subdirectory under `plugin-wiki/src/commands/wiki`. These components work together to provide a comprehensive set of tools for managing wiki content within the application.
+The `wiki` directory in the TypeScript project contains command modules for generating, updating, and validating wiki content. The `generate` subdirectory houses the `WikiGenerate` class, which creates wiki content from input data. The `update` subdirectory includes the `WikiUpdate` class for modifying existing wiki pages, while the `validate` subdirectory contains the `WikiValidate` class for ensuring the integrity of wiki-related data structures.
 
 ## Children
 - [generate](./generate.md)
