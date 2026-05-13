@@ -1,6 +1,6 @@
 {
   "name": "@repowiki/plugin-spec",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "SDD/ATDD generation plugin for repowiki-cli",
   "main": "./dist/index.js",
   "exports": {
