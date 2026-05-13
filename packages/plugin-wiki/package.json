@@ -17,7 +17,7 @@
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "prepack": "node ../../scripts/check-workspace-refs.js"
+    "prepack": "yarn build"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.24.0",

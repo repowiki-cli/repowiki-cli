@@ -129,6 +129,24 @@ Every PR that changes a published package requires a changeset:
 yarn changeset
 ```
 
+## Release Workflow
+
+The CI release pipeline (`.github/workflows/release.yml`) splits version management from publishing:
+
+1. **Version PR** — When changesets are present on `main`, `changesets/action@v1` creates or updates a "Version Packages" PR on `changeset-release/main`. Merging this PR bumps all package versions and generates changelogs.
+
+2. **Publish** — After the version PR merges (no pending changesets), the workflow publishes via:
+   ```bash
+   yarn workspaces foreach --all --no-private npm publish --access public --tolerate-republish
+   ```
+   `yarn npm publish` is used **intentionally** instead of `changeset publish`. Background: `@changesets/cli@2.x` always delegates to `npm publish` regardless of package manager (issue [#432](https://github.com/changesets/changesets/issues/432), open since 2020). `npm publish` does not resolve Yarn Berry's `workspace:*` protocol and would publish packages with broken dependency specs. `yarn npm publish` resolves `workspace:*` → real version numbers in the packed tarball transparently.
+
+3. **Tagging** — After publish, `yarn changeset tag` creates `pkg@version` git tags; `git push --tags` pushes them.
+
+**Required secret:** `NPM_TOKEN` — used as `YARN_NPM_AUTH_TOKEN` in the publish step.
+
+**`prepack` scripts** in each `package.json` run `yarn build` to ensure compiled artifacts are current before packing. They do **not** check for `workspace:*` refs — that check is a false positive in Yarn Berry because `workspace:*` is correct in source and is resolved by Yarn during pack.
+
 ## Extension Points
 
 Implement interfaces from `@repowiki/core` and publish as npm packages:
