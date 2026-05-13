@@ -16,7 +16,8 @@ feat: implement plugin-wiki Phase 1B — full wiki:generate / wiki:validate / wi
 - Bottom-up parent-node summarization (packages → directories → project)
 - Markdown output to `.repowiki/` with v2 manifest (SHA-256 hashes + summaries)
 - Harness config generation: `--harness=claude-code` writes to `CLAUDE.md`, `--harness=cursor` to `.cursorrules`
-- `--dry-run` preview, `--estimate` token count
+- `--dry-run` preview, `--estimate` token count, `--quiet` to suppress progress output
+- Real-time progress display: TTY in-place line overwrite, CI one-line-per-phase, structured `ProgressEvent` API
 - `.env` auto-load from cwd
 
 **`wiki:validate`**
