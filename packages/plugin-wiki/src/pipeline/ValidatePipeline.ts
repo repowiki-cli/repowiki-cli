@@ -16,7 +16,7 @@ export class ValidatePipeline {
     }
 
     const analyzer = new TypeScriptAnalyzer();
-    const currentFiles = await analyzer.discoverFiles(repoPath);
+    const { fileMap } = await analyzer.analyzeWithFileMap(repoPath);
 
     const stale: string[] = [];
     const newFiles: string[] = [];
@@ -32,7 +32,7 @@ export class ValidatePipeline {
       }
     }
 
-    for (const file of currentFiles) {
+    for (const file of fileMap.keys()) {
       if (!manifest.files[file]) newFiles.push(file);
     }
 
