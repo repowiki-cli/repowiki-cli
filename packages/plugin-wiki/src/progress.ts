@@ -47,7 +47,7 @@ function createCiReporter(): ProgressReporter {
         );
         break;
       case 'abort':
-        safeWrite(`${event.reason}\n`);
+        process.stderr.write(`${event.reason}\n`);
         break;
     }
   };
@@ -117,7 +117,11 @@ function createTtyReporter(): ProgressReporter {
         );
         break;
       case 'abort':
-        writeLine(event.reason);
+        if (currentLineLen > 0) {
+          safeWrite(`\r${' '.repeat(currentLineLen)}\r`);
+          currentLineLen = 0;
+        }
+        process.stderr.write(`${event.reason}\n`);
         break;
     }
   };

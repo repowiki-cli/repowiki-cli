@@ -92,8 +92,14 @@ describe('createProgressReporter – CI (non-TTY)', () => {
   });
 
   it('prints reason on abort', () => {
-    createProgressReporter({ quiet: false })({ type: 'abort', reason: 'No files found' });
-    expect(spy).toHaveBeenCalledWith('No files found\n');
+    const stderrSpy = vi.spyOn(process.stderr, 'write').mockReturnValue(true);
+    try {
+      createProgressReporter({ quiet: false })({ type: 'abort', reason: 'No files found' });
+      expect(stderrSpy).toHaveBeenCalledWith('No files found\n');
+      expect(spy).not.toHaveBeenCalled();
+    } finally {
+      stderrSpy.mockRestore();
+    }
   });
 });
 
@@ -172,12 +178,20 @@ describe('createProgressReporter – TTY', () => {
   });
 
   it('clears dirty line and writes reason on abort', () => {
-    const r = createProgressReporter({ quiet: false });
-    r({ type: 'analyze:start' });
-    r({ type: 'abort', reason: 'No TypeScript files found' });
-    const joined = spy.mock.calls.map((c) => c[0] as string).join('');
-    expect(joined).toContain('No TypeScript files found');
-    expect(spy.mock.calls.at(-1)?.[0] as string).toMatch(/\n$/);
+    const stderrSpy = vi.spyOn(process.stderr, 'write').mockReturnValue(true);
+    try {
+      const r = createProgressReporter({ quiet: false });
+      r({ type: 'analyze:start' });
+      r({ type: 'abort', reason: 'No TypeScript files found' });
+      // stdout should have received the clear sequence (\r...\r) but NOT the reason
+      const stdoutJoined = spy.mock.calls.map((c) => c[0] as string).join('');
+      expect(stdoutJoined).toMatch(/\r +\r/);
+      expect(stdoutJoined).not.toContain('No TypeScript files found');
+      // stderr should have received the reason with a trailing newline
+      expect(stderrSpy).toHaveBeenCalledWith('No TypeScript files found\n');
+    } finally {
+      stderrSpy.mockRestore();
+    }
   });
 
   it('handles columns = 0 without error', () => {
