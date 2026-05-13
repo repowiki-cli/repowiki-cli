@@ -1,4 +1,4 @@
-import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, rmdir, unlink, writeFile } from 'node:fs/promises';
 import * as path from 'node:path';
 import type { OutputBackend, WikiNode } from '@repowiki/core';
 
@@ -35,6 +35,22 @@ export class LocalMarkdownBackend implements OutputBackend {
       await unlink(resolved);
     } catch (err: unknown) {
       if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err;
+    }
+  }
+
+  async pruneEmptyDirs(dir: string, stopAt: string): Promise<void> {
+    const resolvedStop = path.resolve(stopAt);
+    let current = path.resolve(dir);
+    // Uses `resolvedStop + path.sep` (not just `resolvedStop`) so that a sibling path
+    // like /tmp/foobarbaz never matches /tmp/foo as a false prefix. When current equals
+    // resolvedStop, startsWith(resolvedStop + sep) is false, so stopAt is never deleted.
+    // NOTE: intentionally differs from the spec's `current !== resolvedStop` guard —
+    // the sep-suffix approach is more precise and makes the `!== resolvedStop` check redundant.
+    while (current.startsWith(resolvedStop + path.sep)) {
+      const entries = await readdir(current).catch(() => null);
+      if (entries === null || entries.length > 0) break;
+      await rmdir(current);
+      current = path.dirname(current);
     }
   }
 

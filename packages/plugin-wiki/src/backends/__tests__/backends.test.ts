@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -125,5 +125,51 @@ describe('LocalMarkdownBackend', () => {
     const backend = new LocalMarkdownBackend(tmpDir);
     const outsidePath = path.resolve(tmpDir, '../escape.md');
     await expect(backend.delete(outsidePath)).rejects.toThrow('Path traversal');
+  });
+});
+
+describe('LocalMarkdownBackend — pruneEmptyDirs', () => {
+  let tmpDir: string;
+
+  beforeEach(async () => {
+    tmpDir = await mkdtemp(path.join(os.tmpdir(), 'repowiki-prune-'));
+  });
+
+  afterEach(async () => {
+    await rm(tmpDir, { recursive: true, force: true });
+  });
+
+  it('removes a single empty directory', async () => {
+    const emptyDir = path.join(tmpDir, 'empty');
+    await mkdir(emptyDir, { recursive: true });
+    const backend = new LocalMarkdownBackend(tmpDir);
+    await backend.pruneEmptyDirs(emptyDir, tmpDir);
+    await expect(stat(emptyDir)).rejects.toMatchObject({ code: 'ENOENT' });
+  });
+
+  it('removes a chain of empty parent directories up to stopAt', async () => {
+    const deepDir = path.join(tmpDir, 'a', 'b', 'c');
+    await mkdir(deepDir, { recursive: true });
+    const backend = new LocalMarkdownBackend(tmpDir);
+    await backend.pruneEmptyDirs(deepDir, tmpDir);
+    await expect(stat(path.join(tmpDir, 'a'))).rejects.toMatchObject({ code: 'ENOENT' });
+  });
+
+  it('stops at a non-empty directory', async () => {
+    const parentDir = path.join(tmpDir, 'parent');
+    const emptyChild = path.join(parentDir, 'empty-child');
+    const sibling = path.join(parentDir, 'sibling.md');
+    await mkdir(emptyChild, { recursive: true });
+    await writeFile(sibling, 'content');
+    const backend = new LocalMarkdownBackend(tmpDir);
+    await backend.pruneEmptyDirs(emptyChild, tmpDir);
+    await expect(stat(emptyChild)).rejects.toMatchObject({ code: 'ENOENT' });
+    await expect(stat(parentDir)).resolves.toBeTruthy(); // parent kept because sibling.md remains
+  });
+
+  it('does not remove stopAt itself', async () => {
+    const backend = new LocalMarkdownBackend(tmpDir);
+    await backend.pruneEmptyDirs(tmpDir, tmpDir); // dir === stopAt
+    await expect(stat(tmpDir)).resolves.toBeTruthy();
   });
 });
