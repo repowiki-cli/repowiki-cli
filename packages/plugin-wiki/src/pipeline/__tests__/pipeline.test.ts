@@ -175,11 +175,13 @@ describe('ValidatePipeline', () => {
 
   it('exits 1 and reports stale when a file changes', async () => {
     const mgr = new ManifestManager(outputDir);
-    const { TypeScriptAnalyzer } = await import('../../analyzers/typescript/TypeScriptAnalyzer.js');
+    const { TypeScriptAnalyzer } = await import(
+      '../../analyzers/typescript/TypeScriptAnalyzer.js'
+    );
     const analyzer = new TypeScriptAnalyzer();
-    const files = await analyzer.discoverFiles(tmpDir);
+    const { fileMap } = await analyzer.analyzeWithFileMap(tmpDir);
     const manifestFiles: Manifest['files'] = {};
-    for (const f of files) {
+    for (const f of fileMap.keys()) {
       manifestFiles[f] = { hash: 'sha256:old-hash', wikiPath: '' };
     }
     await mgr.save({
