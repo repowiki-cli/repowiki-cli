@@ -89,6 +89,14 @@ export class TypeScriptAnalyzer implements Analyzer {
         );
         root.children.push(pkgNode);
       }
+      // Files outside all package directories (loose files at repo root level)
+      const looseFiles = files.filter(
+        (f) => !packages.some((pkg) => f.startsWith(`${pkg.dirKey}/`)),
+      );
+      if (looseFiles.length > 0) {
+        const looseNodes = await this.buildDirectoryTree('', '', looseFiles, repoPath);
+        root.children.push(...looseNodes);
+      }
     } else {
       root.children = await this.buildDirectoryTree(projectName, '', files, repoPath);
     }
@@ -147,7 +155,7 @@ export class TypeScriptAnalyzer implements Analyzer {
       const relative = dirKeyPrefix ? f.slice(dirKeyPrefix.length + 1) : f;
       const noExt = relative.replace(/\.(ts|tsx|js|jsx)$/, '');
       const isTsx = /\.(tsx|jsx)$/.test(f);
-      const nodePath = `${parentPath}/${noExt}`.replace(/\\/g, '/');
+      const nodePath = (parentPath ? `${parentPath}/${noExt}` : noExt).replace(/\\/g, '/');
       const title = path.basename(noExt);
       return { rawFile: f, nodePath, title, isTsx };
     });
@@ -164,7 +172,7 @@ export class TypeScriptAnalyzer implements Analyzer {
 
     const relative = modules.map((m) => ({
       ...m,
-      rel: m.nodePath.slice(parentPath.length + 1),
+      rel: parentPath ? m.nodePath.slice(parentPath.length + 1) : m.nodePath,
     }));
 
     const bySegment = new Map<string, typeof relative>();
@@ -192,10 +200,12 @@ export class TypeScriptAnalyzer implements Analyzer {
         nodes.push(moduleNode);
       } else {
         // Directory grouping with collapse
-        const dirPath = `${parentPath}/${seg}`;
+        const dirPath = parentPath ? `${parentPath}/${seg}` : seg;
         const children = await this.groupIntoTree(group, dirPath, repoPath);
 
-        if (children.length === 1) {
+        // Collapse single-child directories, but never at the loose-files root level
+        // (parentPath === '') to preserve top-level directory groupings.
+        if (children.length === 1 && parentPath !== '') {
           // Collapse: single child promoted
           nodes.push(children[0]);
         } else {
