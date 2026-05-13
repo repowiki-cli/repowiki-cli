@@ -37,9 +37,16 @@
 
 These tests will **fail** before implementation because the analyzer currently drops files outside `packages/` in monorepos.
 
-- [ ] **Step 1.1: Add imports and loose-files describe block to TypeScriptAnalyzer.test.ts**
+- [ ] **Step 1.1: Add imports to TypeScriptAnalyzer.test.ts**
 
-Replace the top of the file (lines 1-3) with:
+The current lines 1–3 of the file are:
+```ts
+import * as path from 'node:path';
+import { describe, expect, it } from 'vitest';
+import { TypeScriptAnalyzer } from '../TypeScriptAnalyzer.js';
+```
+
+Replace all three lines with these five lines (adds fs imports, os, and `afterEach`/`beforeEach` to vitest import):
 
 ```ts
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
@@ -172,7 +179,7 @@ Replace with:
 
 - [ ] **Step 1.7: Add loose-files handling in `analyze()`**
 
-Find the `if (packages.length > 0)` block (lines ~72-95). After the `for (const pkg of packages)` loop and before the closing `}`, add:
+Find the `if (packages.length > 0)` block (lines ~72-95) — this is a **full replacement** of that block. Replace the entire block (from `if (packages.length > 0) {` through the closing `}` of the else branch) with:
 
 ```ts
     if (packages.length > 0) {
@@ -225,7 +232,10 @@ Replace the assertion with:
     it('root has package children for monorepo', async () => {
       const analyzer = new TypeScriptAnalyzer();
       const [root] = (await analyzer.analyze(REPO_ROOT)) as import('../../types.js').AnalyzedNode[];
+      // Loose files may also appear as non-package children — assert at least one package exists
       expect(root.children.some((c) => c.type === 'package')).toBe(true);
+      // Verify a known package is present to prevent a regression where packages disappear
+      expect(root.children.some((c) => c.type === 'package' && c.path === 'core')).toBe(true);
     });
 ```
 
@@ -263,9 +273,18 @@ git commit -m "feat(plugin-wiki): extend TypeScriptAnalyzer to cover loose files
 
 Note: After Task 1, `discoverFiles()` and `analyzeWithFileMap()` return the same file set. This task's behavioral change is subtle (future-proofing consistency) but the "deleted" regression test and "exits 0" test update are included to complete the spec coverage.
 
-- [ ] **Step 2.1: Add "deleted" test to pipeline.test.ts**
+- [ ] **Step 2.1: Add `unlink` to static imports and add "deleted" test to pipeline.test.ts**
 
-In `packages/plugin-wiki/src/pipeline/__tests__/pipeline.test.ts`, inside the `describe('ValidatePipeline', ...)` block, add the following test after the existing "exits 1 and reports stale" test:
+First, update line 1 of `pipeline.test.ts` — add `unlink` to the existing `node:fs/promises` import:
+
+```ts
+// Before:
+import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
+// After:
+import { mkdir, mkdtemp, readFile, rm, stat, unlink, writeFile } from 'node:fs/promises';
+```
+
+Then, inside the `describe('ValidatePipeline', ...)` block, add the following test after the existing "exits 1 and reports stale" test. (The fixture `createFixtureRepo` creates a flat non-monorepo project with `src/index.ts` and `src/utils.ts` — no `packages/` directory. This means both `discoverFiles()` and `analyzeWithFileMap()` return the same two files, so the test is valid before and after the ValidatePipeline code change.)
 
 ```ts
   it('exits 1 and reports deleted when a manifest file is missing from disk', async () => {
@@ -287,8 +306,7 @@ In `packages/plugin-wiki/src/pipeline/__tests__/pipeline.test.ts`, inside the `d
       files: manifestFiles,
     });
 
-    const { unlink } = await import('node:fs/promises');
-    await unlink(path.join(tmpDir, 'src/utils.ts'));
+    await unlink(path.join(tmpDir, 'src/utils.ts')); // uses static import added above
 
     const pipeline = new ValidatePipeline();
     const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => {}) as never);
@@ -339,7 +357,7 @@ In `pipeline.test.ts`, find the test "exits 0 when manifest matches current sour
 yarn workspace @repowiki/plugin-wiki vitest run src/pipeline/__tests__/pipeline.test.ts
 ```
 
-Expected: All tests pass (the "deleted" test already passes with existing logic).
+Expected: All tests pass. The "deleted" test already passes with the existing code because: (a) the deleted-detection loop in `ValidatePipeline` (try `computeHash`, catch ENOENT → `deleted.push()`) is unchanged, and (b) the fixture is a non-monorepo project (no `packages/` directory), so `analyzeWithFileMap()` and `discoverFiles()` return the same two files (`src/index.ts`, `src/utils.ts`), making the manifest setup in the test equivalent under both discovery methods.
 
 - [ ] **Step 2.4: Switch ValidatePipeline to use analyzeWithFileMap**
 
@@ -535,9 +553,12 @@ Add the following method after the `delete()` method (before the `query()` metho
   async pruneEmptyDirs(dir: string, stopAt: string): Promise<void> {
     const resolvedStop = path.resolve(stopAt);
     let current = path.resolve(dir);
-    // Invariant: callers pass a `dir` that is a descendant of `stopAt`.
-    // When `current === resolvedStop` the loop exits immediately.
-    while (current.startsWith(resolvedStop) && current !== resolvedStop) {
+    // Uses `resolvedStop + path.sep` (not just `resolvedStop`) so that a sibling path
+    // like /tmp/foobarbaz never matches /tmp/foo as a false prefix. When current equals
+    // resolvedStop, startsWith(resolvedStop + sep) is false, so stopAt is never deleted.
+    // NOTE: intentionally differs from the spec's `current !== resolvedStop` guard —
+    // the sep-suffix approach is more precise and makes the `!== resolvedStop` check redundant.
+    while (current.startsWith(resolvedStop + path.sep)) {
       const entries = await readdir(current).catch(() => null);
       if (entries === null || entries.length > 0) break;
       await rmdir(current);
@@ -580,9 +601,33 @@ git commit -m "feat(plugin-wiki): add pruneEmptyDirs to LocalMarkdownBackend"
 
 This test **fails** before implementation because UpdatePipeline doesn't yet call `pruneEmptyDirs`.
 
-- [ ] **Step 4.1: Add the pruneEmptyDirs test to UpdatePipeline.test.ts**
+- [ ] **Step 4.1a: Update imports in UpdatePipeline.test.ts**
 
-In `packages/plugin-wiki/src/pipeline/__tests__/UpdatePipeline.test.ts`, add the following helper function before the `describe('UpdatePipeline', ...)` block:
+Replace line 1 of `packages/plugin-wiki/src/pipeline/__tests__/UpdatePipeline.test.ts`:
+
+```ts
+// Before:
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+// After:
+import { mkdir, mkdtemp, readFile, rm, stat, unlink, writeFile } from 'node:fs/promises';
+```
+
+- [ ] **Step 4.1b: Remove dynamic unlink import from existing deletion test**
+
+In the existing "deletes wiki file and manifest entry for a deleted source file" test (around line 162), find and remove the dynamic import line:
+
+```ts
+    // BEFORE — remove this one line:
+    const { unlink } = await import('node:fs/promises');
+    await unlink(path.join(tmpDir, 'src/utils.ts'));
+
+    // AFTER — keep only the unlink call (now uses the static import from Step 4.1a):
+    await unlink(path.join(tmpDir, 'src/utils.ts'));
+```
+
+- [ ] **Step 4.1c: Add createMonorepoFixture helper before the describe block**
+
+Add the following function immediately before the `describe('UpdatePipeline', ...)` line:
 
 ```ts
 async function createMonorepoFixture(dir: string): Promise<void> {
@@ -601,7 +646,9 @@ async function createMonorepoFixture(dir: string): Promise<void> {
 }
 ```
 
-Then add the following test inside the existing `describe('UpdatePipeline', ...)` block, after the last `it()`:
+- [ ] **Step 4.1d: Add the pruneEmptyDirs test inside describe('UpdatePipeline') after the last it()**
+
+Append inside the `describe('UpdatePipeline', ...)` block, after the last `it()` (currently "writes wiki file for a new source file"):
 
 ```ts
   it('prunes empty wiki directories after a loose source file is deleted', async () => {
@@ -650,21 +697,6 @@ Then add the following test inside the existing `describe('UpdatePipeline', ...)
     }
   });
 ```
-
-Also update the imports at the top of `UpdatePipeline.test.ts` to add `stat` and `unlink`:
-
-```ts
-import { mkdir, mkdtemp, readFile, rm, stat, unlink, writeFile } from 'node:fs/promises';
-```
-
-And remove the dynamic import inside the existing "deletes wiki file and manifest entry for a deleted source file" test (line ~162):
-
-```ts
-// Remove this line:
-const { unlink } = await import('node:fs/promises');
-```
-
-(It's now redundant since `unlink` is imported statically above.)
 
 - [ ] **Step 4.2: Run the new test to confirm it fails**
 
@@ -763,6 +795,8 @@ Replace with:
 
 - [ ] **Step 5.2: Create changeset**
 
+Run interactively **or** create the file manually (see manual option below):
+
 ```bash
 yarn changeset
 ```
@@ -773,6 +807,16 @@ When prompted:
 - Enter this summary:
 
 ```
+wiki:generate and wiki:update now cover all source files in monorepos, including those outside packages/ (e.g. scripts/, bin/, root-level .ts/.js files). wiki:validate now uses analyzeWithFileMap() for consistent file discovery. UpdatePipeline prunes empty directories after wiki file deletion. Existing monorepo wikis should be regenerated with wiki:generate after upgrading.
+```
+
+**Manual alternative** (if running non-interactively): create `.changeset/wiki-crud-consistency.md` with:
+
+```md
+---
+"@repowiki/plugin-wiki": minor
+---
+
 wiki:generate and wiki:update now cover all source files in monorepos, including those outside packages/ (e.g. scripts/, bin/, root-level .ts/.js files). wiki:validate now uses analyzeWithFileMap() for consistent file discovery. UpdatePipeline prunes empty directories after wiki file deletion. Existing monorepo wikis should be regenerated with wiki:generate after upgrading.
 ```
 
