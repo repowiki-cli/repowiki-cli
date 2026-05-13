@@ -41,7 +41,7 @@ export interface GenerateOptions {
   concurrency: number;
   repoPath: string;
   outputPath: string;
-  quiet: boolean;       // consumed only by the command layer to build the reporter; pipeline does NOT read this
+  quiet: boolean; // consumed only by the command layer to build the reporter; pipeline does NOT read this
   onProgress?: ProgressReporter;
 }
 
