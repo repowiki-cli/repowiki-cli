@@ -26,6 +26,14 @@ function safeWrite(chunk: string): void {
   }
 }
 
+function safeWriteErr(chunk: string): void {
+  try {
+    process.stderr.write(chunk);
+  } catch {
+    /* EPIPE: ignore */
+  }
+}
+
 function createCiReporter(): ProgressReporter {
   return (event) => {
     switch (event.type) {
@@ -47,7 +55,7 @@ function createCiReporter(): ProgressReporter {
         );
         break;
       case 'abort':
-        process.stderr.write(`${event.reason}\n`);
+        safeWriteErr(`${event.reason}\n`);
         break;
     }
   };
@@ -121,7 +129,7 @@ function createTtyReporter(): ProgressReporter {
           safeWrite(`\r${' '.repeat(currentLineLen)}\r`);
           currentLineLen = 0;
         }
-        process.stderr.write(`${event.reason}\n`);
+        safeWriteErr(`${event.reason}\n`);
         break;
     }
   };

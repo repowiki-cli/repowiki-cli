@@ -207,13 +207,13 @@ async function summarizeNonLeaves(
   const t0 = Date.now();
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i];
+    node.summary = await summarizeParent(node, provider);
     report({
       type: 'summarize-parents:item',
       index: i + 1,
       total: nodes.length,
       title: node.title,
     });
-    node.summary = await summarizeParent(node, provider);
   }
   report({ type: 'summarize-parents:done', elapsed: Date.now() - t0 });
 }
