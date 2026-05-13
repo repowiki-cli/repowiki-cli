@@ -16,11 +16,13 @@ export async function callWithRetry<T>(fn: () => Promise<T>): Promise<T> {
   }
 }
 
-export async function summarizeModule(node: AnalyzedNode, provider: LLMProvider): Promise<string> {
+export function buildModuleMessages(
+  node: AnalyzedNode,
+): Array<{ role: 'system' | 'user'; content: string }> {
   const exportList = node.exports
     .map((e) => `- ${e.kind} ${e.name}${e.jsDoc ? ` — ${e.jsDoc}` : ''}`)
     .join('\n');
-  const messages = [
+  return [
     {
       role: 'system' as const,
       content:
@@ -31,7 +33,10 @@ export async function summarizeModule(node: AnalyzedNode, provider: LLMProvider)
       content: `Write a 2–3 sentence summary for this TypeScript module.\n\nPath: ${node.path}\nExports:\n${exportList || '(none)'}`,
     },
   ];
-  return callWithRetry(() => provider.complete(messages));
+}
+
+export async function summarizeModule(node: AnalyzedNode, provider: LLMProvider): Promise<string> {
+  return callWithRetry(() => provider.complete(buildModuleMessages(node)));
 }
 
 export async function summarizeParent(node: AnalyzedNode, provider: LLMProvider): Promise<string> {

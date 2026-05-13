@@ -12,7 +12,7 @@ import type { ProgressEvent, ProgressReporter } from '../progress.js';
 import type { AnalyzedNode, GenerateOptions, HarnessGenerator } from '../types.js';
 import { collectNodes, wikiFilePath } from '../types.js';
 import { collectAll, renderMarkdown } from './render.js';
-import { summarizeModule, summarizeParent } from './summarize.js';
+import { buildModuleMessages, summarizeModule, summarizeParent } from './summarize.js';
 
 export class GeneratePipeline {
   private readonly provider: LLMProvider;
@@ -63,8 +63,8 @@ export class GeneratePipeline {
       const enc = getEncoding('cl100k_base');
       let totalTokens = 0;
       for (const node of modules) {
-        const prompt = buildModulePrompt(node);
-        totalTokens += enc.encode(prompt.user).length + enc.encode(prompt.system).length;
+        const msgs = buildModuleMessages(node);
+        totalTokens += enc.encode(msgs[1].content).length + enc.encode(msgs[0].content).length;
       }
       process.stdout.write(
         `Estimated tokens: ${totalTokens}. Actual cost depends on your provider's pricing. Non-OpenAI providers may differ by ±30%.\n`,
@@ -186,17 +186,6 @@ export class GeneratePipeline {
 }
 
 // --- helpers ---
-
-function buildModulePrompt(node: AnalyzedNode): { user: string; system: string } {
-  const exportList = node.exports
-    .map((e) => `- ${e.kind} ${e.name}${e.jsDoc ? ` — ${e.jsDoc}` : ''}`)
-    .join('\n');
-  return {
-    user: `Write a 2–3 sentence summary for this TypeScript module.\n\nPath: ${node.path}\nExports:\n${exportList || '(none)'}`,
-    system:
-      'You are a technical writer. Generate concise wiki entries for a software codebase. Be specific and factual. Do not hallucinate APIs that are not listed.',
-  };
-}
 
 function collectNonLeavesBottomUp(root: AnalyzedNode): AnalyzedNode[] {
   const result: AnalyzedNode[] = [];
