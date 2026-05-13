@@ -2,8 +2,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createProgressReporter } from '../progress.js';
 
 describe('createProgressReporter – quiet', () => {
-  it('does not write to stdout for any event', () => {
-    const spy = vi.spyOn(process.stdout, 'write').mockReturnValue(true);
+  it('does not write to stdout or stderr for any event', () => {
+    const stdoutSpy = vi.spyOn(process.stdout, 'write').mockReturnValue(true);
+    const stderrSpy = vi.spyOn(process.stderr, 'write').mockReturnValue(true);
     const r = createProgressReporter({ quiet: true });
     r({ type: 'analyze:start' });
     r({ type: 'analyze:done', moduleCount: 5 });
@@ -16,8 +17,10 @@ describe('createProgressReporter – quiet', () => {
     r({ type: 'write:done', fileCount: 3, elapsed: 100 });
     r({ type: 'finished', fileCount: 3, llmCalls: 6, elapsed: 5000 });
     r({ type: 'abort', reason: 'no files' });
-    expect(spy).not.toHaveBeenCalled();
-    spy.mockRestore();
+    expect(stdoutSpy).not.toHaveBeenCalled();
+    expect(stderrSpy).not.toHaveBeenCalled();
+    stdoutSpy.mockRestore();
+    stderrSpy.mockRestore();
   });
 });
 
