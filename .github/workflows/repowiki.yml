@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'packages/**'
+      - "packages/**"
 
 permissions:
   contents: write
@@ -18,11 +18,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
       - name: Install repowiki-cli
         run: npm install -g repowiki-cli
       - name: Update wiki
-        run: repowiki wiki update --provider=dashscope --model=qwen3-max || repowiki wiki generate --provider=dashscope --model=qwen3-max
+        run: repowiki wiki:update --provider=dashscope --model=qwen3-max || repowiki wiki:generate --provider=dashscope --model=qwen3-max
         env:
           DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
       - name: Commit wiki changes
