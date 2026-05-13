@@ -51,7 +51,10 @@ describe('createProgressReporter – CI (non-TTY)', () => {
 
   it('ignores summarize-modules:item', () => {
     createProgressReporter({ quiet: false })({
-      type: 'summarize-modules:item', index: 3, total: 25, path: 'src/foo.ts',
+      type: 'summarize-modules:item',
+      index: 3,
+      total: 25,
+      path: 'src/foo.ts',
     });
     expect(spy).not.toHaveBeenCalled();
   });
@@ -80,7 +83,10 @@ describe('createProgressReporter – CI (non-TTY)', () => {
 
   it('prints Done summary on finished', () => {
     createProgressReporter({ quiet: false })({
-      type: 'finished', fileCount: 30, llmCalls: 30, elapsed: 14100,
+      type: 'finished',
+      fileCount: 30,
+      llmCalls: 30,
+      elapsed: 14100,
     });
     expect(spy).toHaveBeenCalledWith('Done: 30 wiki files, 30 LLM calls, 14.1s\n');
   });
@@ -108,7 +114,7 @@ describe('createProgressReporter – TTY', () => {
 
   it('writes analyze:start without newline', () => {
     createProgressReporter({ quiet: false })({ type: 'analyze:start' });
-    const last = spy.mock.calls.at(-1)![0] as string;
+    const last = spy.mock.calls.at(-1)?.[0] as string;
     expect(last).toContain('Analyzing repository...');
     expect(last).not.toMatch(/\n$/);
   });
@@ -118,7 +124,7 @@ describe('createProgressReporter – TTY', () => {
     r({ type: 'analyze:done', moduleCount: 25 });
     const joined = spy.mock.calls.map((c) => c[0] as string).join('');
     expect(joined).toContain('✓ Analyzed 25 modules');
-    expect(spy.mock.calls.at(-1)![0] as string).toMatch(/\n$/);
+    expect(spy.mock.calls.at(-1)?.[0] as string).toMatch(/\n$/);
   });
 
   it('uses \\r to clear previous line before new progress', () => {
@@ -133,10 +139,11 @@ describe('createProgressReporter – TTY', () => {
     Object.defineProperty(process.stdout, 'columns', { value: 40, configurable: true });
     createProgressReporter({ quiet: false })({
       type: 'summarize-modules:item',
-      index: 1, total: 5,
-      path: 'src/' + 'x'.repeat(100) + '.ts',
+      index: 1,
+      total: 5,
+      path: `src/${'x'.repeat(100)}.ts`,
     });
-    const last = spy.mock.calls.at(-1)![0] as string;
+    const last = spy.mock.calls.at(-1)?.[0] as string;
     expect(last.length).toBeLessThanOrEqual(39);
   });
 
@@ -145,19 +152,23 @@ describe('createProgressReporter – TTY', () => {
     expect(() =>
       createProgressReporter({ quiet: false })({
         type: 'summarize-modules:item',
-        index: 1, total: 5,
-        path: 'src/' + 'x'.repeat(200) + '.ts',
+        index: 1,
+        total: 5,
+        path: `src/${'x'.repeat(200)}.ts`,
       }),
     ).not.toThrow();
   });
 
   it('writes finished with newline', () => {
     createProgressReporter({ quiet: false })({
-      type: 'finished', fileCount: 30, llmCalls: 30, elapsed: 14100,
+      type: 'finished',
+      fileCount: 30,
+      llmCalls: 30,
+      elapsed: 14100,
     });
     const joined = spy.mock.calls.map((c) => c[0] as string).join('');
     expect(joined).toContain('Done: 30 wiki files, 30 LLM calls, 14.1s');
-    expect(spy.mock.calls.at(-1)![0] as string).toMatch(/\n$/);
+    expect(spy.mock.calls.at(-1)?.[0] as string).toMatch(/\n$/);
   });
 
   it('clears dirty line and writes reason on abort', () => {
@@ -166,6 +177,18 @@ describe('createProgressReporter – TTY', () => {
     r({ type: 'abort', reason: 'No TypeScript files found' });
     const joined = spy.mock.calls.map((c) => c[0] as string).join('');
     expect(joined).toContain('No TypeScript files found');
-    expect(spy.mock.calls.at(-1)![0] as string).toMatch(/\n$/);
+    expect(spy.mock.calls.at(-1)?.[0] as string).toMatch(/\n$/);
+  });
+
+  it('handles columns = 0 without error', () => {
+    Object.defineProperty(process.stdout, 'columns', { value: 0, configurable: true });
+    expect(() =>
+      createProgressReporter({ quiet: false })({
+        type: 'summarize-modules:item',
+        index: 1,
+        total: 5,
+        path: 'src/x.ts',
+      }),
+    ).not.toThrow();
   });
 });
