@@ -1,5 +1,11 @@
 # @repowiki/plugin-wiki
 
+## 0.2.0
+
+### Minor Changes
+
+- [#14](https://github.com/repowiki-cli/repowiki-cli/pull/14) [`a81ce42`](https://github.com/repowiki-cli/repowiki-cli/commit/a81ce42a30976196386cc54c383671bbbd6c275a) Thanks [@Oscaner](https://github.com/Oscaner)! - wiki:generate and wiki:update now cover all source files in monorepos, including those outside packages/ (e.g. scripts/, bin/, root-level .ts/.js files). wiki:validate now uses analyzeWithFileMap() for consistent file discovery. UpdatePipeline prunes empty directories after wiki file deletion. Existing monorepo wikis should be regenerated with wiki:generate after upgrading.
+
 ## 0.1.0
 
 ### Minor Changes

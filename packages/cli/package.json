@@ -1,6 +1,6 @@
 {
   "name": "repowiki-cli",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "AI-Native engineering toolkit for large-scale multi-repo projects",
   "bin": {
     "repowiki": "./bin/run.js"
