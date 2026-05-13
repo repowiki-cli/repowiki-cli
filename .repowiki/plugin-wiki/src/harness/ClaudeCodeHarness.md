@@ -3,7 +3,7 @@
 > Path: `plugin-wiki/src/harness/ClaudeCodeHarness`
 
 ## Overview
-The `ClaudeCodeHarness` class in the `plugin-wiki/src/harness/ClaudeCodeHarness` module provides a framework for integrating and interacting with the Claude code generation model. It handles the setup, execution, and management of code generation tasks within a controlled environment. The class is designed to work within the broader plugin architecture, enabling seamless communication between the application and the Claude API.
+The `ClaudeCodeHarness` class in the `plugin-wiki/src/harness/ClaudeCodeHarness` module provides a specialized execution environment for running code within the context of the Claude AI model. It is designed to handle code execution tasks specific to the Wiki plugin, offering integration with the broader plugin system. The class includes methods for initializing, executing, and managing code runs in a controlled sandboxed environment.
 
 ## Exports
 - `class ClaudeCodeHarness`

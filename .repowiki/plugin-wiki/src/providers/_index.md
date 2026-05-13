@@ -3,7 +3,7 @@
 > Path: `plugin-wiki/src/providers`
 
 ## Overview
-This directory contains the core provider implementations and utilities for integrating with various AI service providers. It includes classes such as `AnthropicProvider`, `AzureOpenAIProvider`, and `OpenAIProvider`, each designed to interface with specific AI services. Additionally, the `createProvider` module offers functions for dynamically creating and managing these provider instances.
+The directory contains provider classes and utilities for integrating with various AI services. It includes `AnthropicProvider` for Anthropic, `AzureOpenAIProvider` for Azure OpenAI, and `OpenAIProvider` for OpenAI, each handling API interactions. The `createProvider` module exports a function to instantiate these providers.
 
 ## Children
 - [AnthropicProvider](./AnthropicProvider.md)

@@ -3,7 +3,8 @@
 > Path: `plugin-wiki/src/commands/wiki/validate`
 
 ## Overview
-The `WikiValidate` class in the `plugin-wiki/src/commands/wiki/validate` module is responsible for validating wiki content according to predefined rules. It provides methods to check for formatting issues, broken links, and other common problems in wiki pages. This class is used within the plugin to ensure consistency and quality of wiki documentation.
+**Module Summary:**  
+The `wiki-validate` module contains the `WikiValidate` class, which is responsible for validating wiki-related data or structures within the application. It is part of the plugin-wiki project and resides in the `src/commands/wiki` directory. This class likely provides methods to ensure compliance with specific wiki formatting or content rules.
 
 ## Exports
 - `class WikiValidate`

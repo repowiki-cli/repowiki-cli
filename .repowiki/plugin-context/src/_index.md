@@ -3,7 +3,7 @@
 > Path: `plugin-context/src`
 
 ## Overview
-The `plugin-context` directory in the TypeScript project provides the core functionality for managing plugin contexts. It includes an `index` module that serves as the entry point for accessing plugin context features. The `context` subdirectory contains internal modules responsible for implementing and handling plugin context logic.
+The `plugin-context` directory serves as the central module for managing plugin context within the application. It includes an entry point at `plugin-context/src/index` that exports the core functionality. The `context` subdirectory contains the implementation details for handling plugin context operations.
 
 ## Children
 - [index](./index.md)

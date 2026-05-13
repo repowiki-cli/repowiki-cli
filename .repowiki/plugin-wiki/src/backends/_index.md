@@ -3,7 +3,7 @@
 > Path: `plugin-wiki/src/backends`
 
 ## Overview
-This directory contains backend modules for the wiki plugin, including `LocalMarkdownBackend` for handling local Markdown file operations and `ManifestManager` for managing application manifests. Both classes are part of the `plugin-wiki/src/backends` module. These components work together to support the wiki's data storage and configuration management.
+This directory contains backend and manifest management components for the wiki plugin. It includes `LocalMarkdownBackend`, which handles local Markdown file operations, and `ManifestManager`, which manages and processes manifest files. These components work together to support the wiki's data handling and configuration needs.
 
 ## Children
 - [LocalMarkdownBackend](./LocalMarkdownBackend.md)

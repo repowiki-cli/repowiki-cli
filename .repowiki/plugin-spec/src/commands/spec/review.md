@@ -3,8 +3,7 @@
 > Path: `plugin-spec/src/commands/spec/review`
 
 ## Overview
-**Module:** `plugin-spec/src/commands/spec/review`  
-**Summary:** This module defines the `SpecReview` class, which is responsible for handling review operations related to specification documents within the plugin system. It provides methods for initiating, managing, and updating reviews. The class is designed to integrate with the broader command structure of the application.
+The `SpecReview` class in the `plugin-spec/src/commands/spec/review` module is responsible for handling review operations related to specification documents. It provides methods to manage and process reviews within the plugin's command structure. This class is part of a larger system for validating and iterating on technical specifications.
 
 ## Exports
 - `class SpecReview`

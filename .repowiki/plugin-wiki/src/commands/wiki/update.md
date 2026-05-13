@@ -3,7 +3,7 @@
 > Path: `plugin-wiki/src/commands/wiki/update`
 
 ## Overview
-The `WikiUpdate` class in the `plugin-wiki/src/commands/wiki/update` module is responsible for handling the update functionality of wiki pages. It provides methods to modify existing wiki content, including validation and persistence logic. This class is part of the command structure used within the plugin's CLI or API for managing wiki data.
+The `WikiUpdate` class in the `plugin-wiki/src/commands/wiki/update` module is responsible for handling the update functionality within the wiki plugin. It provides methods to modify existing wiki pages or entries. The class is designed to integrate with the broader command structure of the application.
 
 ## Exports
 - `class WikiUpdate`

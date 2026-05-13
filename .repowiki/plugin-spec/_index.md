@@ -3,7 +3,7 @@
 > Path: `plugin-spec`
 
 ## Overview
-The `plugin-spec` package in the TypeScript project serves as the core module for defining and managing plugin specifications. It contains the `src` directory, which holds the implementation details and interfaces required to structure and validate plugins. This package is essential for ensuring consistency and compatibility across different plugins within the application.
+The `node` package in the TypeScript project is designed to handle node-specific functionality and interactions. It contains a `src` directory that serves as the core location for plugin specifications. This structure allows for organized development and integration of plugins within the project.
 
 ## Children
 - [src](./src/_index.md)

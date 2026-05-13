@@ -3,7 +3,7 @@
 > Path: `core`
 
 ## Overview
-The package contains the `core/src/index` module, which defines foundational interfaces for a repowiki application. It serves as the central entry point for core functionality and type definitions. This module is essential for maintaining consistency and structure across the application's components.
+The `node` package in the TypeScript project serves as a foundational module, containing the `core/src/index` module. This module defines the core interfaces and configurations used throughout the application. It provides essential types and settings that other parts of the codebase rely on for consistent structure and behavior.
 
 ## Children
 - [index](./src/index.md)

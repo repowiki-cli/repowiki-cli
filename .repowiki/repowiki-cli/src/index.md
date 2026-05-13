@@ -3,8 +3,7 @@
 > Path: `repowiki-cli/src/index`
 
 ## Overview
-**Module:** `repowiki-cli/src/index`  
-**Summary:** This module serves as the entry point for the repowiki CLI tool. It exports a constant `VERSION` that represents the current version of the application. The module is used to initialize and provide version information to the CLI interface.
+The `repowiki-cli/src/index` module exports a single constant `VERSION`, which represents the current version of the CLI tool. This module is likely used to provide version information to other parts of the application or to external processes. It contains no additional functions or classes.
 
 ## Exports
 - `const VERSION`
