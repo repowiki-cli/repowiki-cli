@@ -1,0 +1,172 @@
+{
+  "version": 2,
+  "generatedAt": "2026-05-13T05:52:50.063Z",
+  "provider": "dashscope",
+  "files": {
+    "packages/cli/bin/run.js": {
+      "hash": "sha256:0dd83f57604d6497c54f80d16a49b66eba7126d238f3a5b3807f49c19c0719d6",
+      "wikiPath": ".repowiki/repowiki-cli/bin/run.md",
+      "summary": "The `repowiki-cli/bin/run` module is the entry point for executing the repowiki CLI tool. It initializes and runs the application, handling command-line arguments and invoking the appropriate commands. This file does not export any functions or variables for external use."
+    },
+    "packages/cli/src/index.ts": {
+      "hash": "sha256:e3264d1fa329056871c0cc6dc413995ac4c613684b320f991baf2625c5faaedd",
+      "wikiPath": ".repowiki/repowiki-cli/src/index.md",
+      "summary": "The `repowiki-cli/src/index` module exports a single constant `VERSION`, which represents the current version of the CLI tool. This module is likely used to provide version information to other parts of the application or to external processes. It contains no additional functions or classes."
+    },
+    "packages/core/src/index.ts": {
+      "hash": "sha256:1b3284e8ebd136e1b40976c4d32124e5cb7e0f7bf72a818f07665b2c0d880366",
+      "wikiPath": ".repowiki/core/src/index.md",
+      "summary": "The `core/src/index` module defines the core interfaces and configurations used throughout the application. It includes types such as `ChatMessage`, `WikiNode`, `LLMProvider`, `OutputBackend`, `Analyzer`, and `RepowikiConfig`, which represent essential components for handling chat interactions, wiki data, language models, output systems, analysis logic, and configuration settings. These interfaces provide a structured foundation for integrating and extending the application's functionality."
+    },
+    "packages/plugin-context/src/index.ts": {
+      "hash": "sha256:d994e84d6b6359ad75fe22376c45f3cbc5c6eff51d7f717a70132bbcfa74642d",
+      "wikiPath": ".repowiki/plugin-context/src/index.md",
+      "summary": "The `plugin-context/src/index` module serves as the entry point for the plugin context functionality within the application. It is responsible for initializing and managing the environment in which plugins execute. No public APIs are exported directly from this module."
+    },
+    "packages/plugin-context/src/commands/context/index.ts": {
+      "hash": "sha256:06102ce08697dfb9ac94b99d87862b577872b241e2972b0d03ba8777368f867b",
+      "wikiPath": ".repowiki/plugin-context/src/commands/context/index.md",
+      "summary": "The `ContextIndex` class in the `plugin-context/src/commands/context/index` module is responsible for managing and organizing contextual data within the plugin system. It provides methods for indexing and retrieving context information used by various parts of the application. This module serves as a central hub for context-related operations within the plugin architecture."
+    },
+    "packages/plugin-context/src/commands/context/query.ts": {
+      "hash": "sha256:1189b016b1a0c4961e9d1a853726867e131a9ce4e0fab09e8fe7ec1ad4d99c80",
+      "wikiPath": ".repowiki/plugin-context/src/commands/context/query.md",
+      "summary": "**Module:** `plugin-context/src/commands/context/query`  \n**Exports:** `ContextQuery`  \nThis TypeScript module defines the `ContextQuery` class, which is used to execute queries against a context system within a plugin-based application. It provides methods for retrieving and manipulating contextual data in a structured manner. The class is designed to integrate with the broader plugin architecture, enabling dynamic data access during runtime."
+    },
+    "packages/plugin-context/src/commands/context/serve.ts": {
+      "hash": "sha256:8f9bf318c194cefa98f2720a3e5de2fc544be23581fb5f7dafad382d5fa40c42",
+      "wikiPath": ".repowiki/plugin-context/src/commands/context/serve.md",
+      "summary": "The `ContextServe` class in the `plugin-context/src/commands/context/serve` module is responsible for managing the local development server functionality within the plugin context. It handles starting, stopping, and monitoring the server process. This class is part of the command-line interface for serving plugin-based applications."
+    },
+    "packages/plugin-spec/src/index.ts": {
+      "hash": "sha256:5cbb626b9120845f915fd9f0eadefa02ff80bc557f4631d0c16234a17e56dca5",
+      "wikiPath": ".repowiki/plugin-spec/src/index.md",
+      "summary": "The `plugin-spec/src/index` module serves as the entry point for plugin specifications within the codebase. It does not export any symbols directly, suggesting it may be used for side effects or to organize internal imports. This module likely provides a structured foundation for defining and extending plugin functionality."
+    },
+    "packages/plugin-spec/src/commands/spec/atdd.ts": {
+      "hash": "sha256:973603a0b2fab71cdccb296aed8bc7275bd0f98859d98e704e1ac52eaf94e765",
+      "wikiPath": ".repowiki/plugin-spec/src/commands/spec/atdd.md",
+      "summary": "The `SpecAtdd` class in the `plugin-spec/src/commands/spec/atdd` module is responsible for handling ATDD (Acceptance Test-Driven Development) related commands within the plugin specification system. It provides methods to parse, validate, and execute ATDD scenarios as part of the specification workflow. This module integrates ATDD practices into the broader codebase tooling."
+    },
+    "packages/plugin-spec/src/commands/spec/review.ts": {
+      "hash": "sha256:7851c98d2bfeba9118f8f758979ed49690477a78451746de07e295ad1018b860",
+      "wikiPath": ".repowiki/plugin-spec/src/commands/spec/review.md",
+      "summary": "The `SpecReview` class in the `plugin-spec/src/commands/spec/review` module is responsible for handling review operations related to specification documents. It provides methods to manage and process reviews within the plugin's command structure. This class is part of a larger system for validating and iterating on technical specifications."
+    },
+    "packages/plugin-spec/src/commands/spec/sdd.ts": {
+      "hash": "sha256:8e460e0d58cedc8854d74d579cf5b221d8259a2c1dc1ac604e77b989dd307985",
+      "wikiPath": ".repowiki/plugin-spec/src/commands/spec/sdd.md",
+      "summary": "The `SpecSdd` class is part of the `plugin-spec` module and resides in the `commands/spec/sdd` directory. It is designed to handle specific command-line operations related to software specification documents. The class provides functionality for managing and processing SDD (Software Development Document) files within the plugin ecosystem."
+    },
+    "packages/plugin-wiki/src/index.ts": {
+      "hash": "sha256:7ef32c3ce453444da42df0a65eba99d029a17419f4a73c0df35691f8b651f4ee",
+      "wikiPath": ".repowiki/plugin-wiki/src/index.md",
+      "summary": "The `plugin-wiki/src/index` module serves as the entry point for the wiki plugin functionality within the application. It does not export any public APIs, indicating it is likely used internally or to initialize plugin behavior. The module may contain setup logic or references to other internal components that are not exposed externally."
+    },
+    "packages/plugin-wiki/src/progress.ts": {
+      "hash": "sha256:eb91ac431c49c6022e7397c01b2c504e898b9a4e83d1aa8d9d5759fe467bb313",
+      "wikiPath": ".repowiki/plugin-wiki/src/progress.md",
+      "summary": "The `progress` module in the `plugin-wiki` package provides types and utilities for tracking and reporting progress within an application. It defines the `ProgressEvent` type to represent progress updates and the `ProgressReporter` type to describe objects that can emit such events. The `createProgressReporter` function is used to instantiate a new progress reporter instance."
+    },
+    "packages/plugin-wiki/src/types.ts": {
+      "hash": "sha256:b2d606f873fa30dda0b04ef0cd894cb718ec25a78c9b635b3702bd8302948c07",
+      "wikiPath": ".repowiki/plugin-wiki/src/types.md",
+      "summary": "The `plugin-wiki/src/types` module defines TypeScript types and interfaces used throughout the wiki plugin, including node and manifest structures, configuration options, and utility functions. It exports types like `NodeType`, `Manifest`, and `AnyManifest`, along with interfaces for analyzing nodes, generating content, and validating configurations. The module also includes helper functions such as `wikiFilePath` for determining output file paths and `collectNodes` for traversing node trees."
+    },
+    "packages/plugin-wiki/src/backends/LocalMarkdownBackend.ts": {
+      "hash": "sha256:bdceef6dad7ce3f06fbe24443d9b04129ffaca40ba330c42498484361c909147",
+      "wikiPath": ".repowiki/plugin-wiki/src/backends/LocalMarkdownBackend.md",
+      "summary": "The `LocalMarkdownBackend` class in the `plugin-wiki/src/backends/LocalMarkdownBackend` module is responsible for handling local Markdown file operations within the wiki plugin. It provides methods for reading, writing, and managing Markdown content stored locally. This backend is typically used in environments where content is stored directly on the file system rather than a remote server."
+    },
+    "packages/plugin-wiki/src/backends/ManifestManager.ts": {
+      "hash": "sha256:e9caabf29f928f597a546b79f80d8afd846095e5c41f86bdb0ec754fe7b56ea8",
+      "wikiPath": ".repowiki/plugin-wiki/src/backends/ManifestManager.md",
+      "summary": "**ManifestManager** is a TypeScript class responsible for managing and processing manifest files within the plugin-wiki module. It provides methods to load, parse, and validate manifest data, ensuring consistency and correctness in plugin configurations. This class serves as the central component for handling manifest-related operations in the backend."
+    },
+    "packages/plugin-wiki/src/harness/ClaudeCodeHarness.ts": {
+      "hash": "sha256:646e17a8d03daca1232278f17df789938eae8119e22251f6078c4d273feb3dfe",
+      "wikiPath": ".repowiki/plugin-wiki/src/harness/ClaudeCodeHarness.md",
+      "summary": "The `ClaudeCodeHarness` class in the `plugin-wiki/src/harness/ClaudeCodeHarness` module provides a specialized execution environment for running code within the context of the Claude AI model. It is designed to handle code execution tasks specific to the Wiki plugin, offering integration with the broader plugin system. The class includes methods for initializing, executing, and managing code runs in a controlled sandboxed environment."
+    },
+    "packages/plugin-wiki/src/harness/CursorHarness.ts": {
+      "hash": "sha256:c266ac04093655f607ba37e0022db8a2c59232a6498a218ee677cf1028b7882c",
+      "wikiPath": ".repowiki/plugin-wiki/src/harness/CursorHarness.md",
+      "summary": "The `CursorHarness` class in the `plugin-wiki/src/harness/CursorHarness` module provides utilities for managing and interacting with a cursor within a text-based interface. It includes methods for positioning, moving, and retrieving the current cursor state. This class is designed to support features such as text editing, navigation, and user input handling within the plugin's runtime environment."
+    },
+    "packages/plugin-wiki/src/harness/HarnessWriter.ts": {
+      "hash": "sha256:d440133a0aba42e4693b88756a2307b326d0d4905b4cc04ed6fcffa50be4d9f4",
+      "wikiPath": ".repowiki/plugin-wiki/src/harness/HarnessWriter.md",
+      "summary": "The `writeHarnessBlock` function in the `HarnessWriter` module is responsible for generating and writing a harness block to a specified output location. It is part of the wiki plugin's codebase and is used to structure content in a format suitable for documentation or testing purposes. The function likely handles formatting and file I/O operations required to persist the harness content."
+    },
+    "packages/plugin-wiki/src/providers/AnthropicProvider.ts": {
+      "hash": "sha256:372bc9ce8c2c0b0b91dc0498be9b6f4bab9be4fa0263cecb4e395117b6e3ba33",
+      "wikiPath": ".repowiki/plugin-wiki/src/providers/AnthropicProvider.md",
+      "summary": "The `AnthropicProvider` class in the `plugin-wiki/src/providers/AnthropicProvider` module serves as a bridge for integrating with Anthropic's AI services. It provides methods to interact with Anthropic's API, enabling features like text generation and model inference within the application. This class is designed to abstract the complexity of direct API calls, offering a consistent interface for using Anthropic models."
+    },
+    "packages/plugin-wiki/src/providers/AzureOpenAIProvider.ts": {
+      "hash": "sha256:ee4bf89be71d2aa1dc667b401f8be0f26512a98e71399526625b973f18c2d255",
+      "wikiPath": ".repowiki/plugin-wiki/src/providers/AzureOpenAIProvider.md",
+      "summary": "The `AzureOpenAIProvider` class in the `plugin-wiki/src/providers/AzureOpenAIProvider` module is responsible for integrating with Azure OpenAI services. It provides methods to interact with Azure's AI models, handling authentication and API requests. This class serves as a bridge between the application and the Azure OpenAI platform, enabling seamless model utilization."
+    },
+    "packages/plugin-wiki/src/providers/OpenAIProvider.ts": {
+      "hash": "sha256:1e9cb0e31570c0197b746a38b5109c6b263c8caa34f10113d14d0d2800d1cb3e",
+      "wikiPath": ".repowiki/plugin-wiki/src/providers/OpenAIProvider.md",
+      "summary": "The `OpenAIProvider` class in the `plugin-wiki/src/providers/OpenAIProvider` module serves as a wrapper for interacting with OpenAI's API. It provides methods for sending prompts and receiving responses from OpenAI models. This class is designed to be used within a larger plugin system that integrates AI-powered content generation."
+    },
+    "packages/plugin-wiki/src/providers/createProvider.ts": {
+      "hash": "sha256:8b7fee79f01901168db6849e83ebf75e9e81944ad98a0647d2db404afa8787c4",
+      "wikiPath": ".repowiki/plugin-wiki/src/providers/createProvider.md",
+      "summary": "The `createProvider` module exports a function used to create a provider instance. It also includes the `providerEnvKey` function, which returns the corresponding environment variable name for a given provider key, or null if no environment variable is needed. This module is utilized to manage provider configurations and their associated environment settings."
+    },
+    "packages/plugin-wiki/src/pipeline/GeneratePipeline.ts": {
+      "hash": "sha256:780762db919a8c6c5e72330fc72647357b3a20f12298796e098471fed05b51bc",
+      "wikiPath": ".repowiki/plugin-wiki/src/pipeline/GeneratePipeline.md",
+      "summary": "The `GeneratePipeline` class in the `plugin-wiki/src/pipeline/GeneratePipeline` module is responsible for orchestrating the generation process within the wiki plugin. It likely contains methods for initializing, configuring, and executing pipeline steps related to content generation. This class serves as a central component for managing the flow of data and operations during the generation phase."
+    },
+    "packages/plugin-wiki/src/pipeline/UpdatePipeline.ts": {
+      "hash": "sha256:64dc298a025ae8f78726ab910e1fe7f51382a05a5a1e8884dc6169dcdc0aa46b",
+      "wikiPath": ".repowiki/plugin-wiki/src/pipeline/UpdatePipeline.md",
+      "summary": "The `UpdatePipeline` class in the `plugin-wiki/src/pipeline/UpdatePipeline` module is responsible for managing the workflow of updating data or content within the application. It likely includes methods for processing, validating, and applying updates in a structured manner. This module serves as a central component for handling update operations in the wiki plugin's architecture."
+    },
+    "packages/plugin-wiki/src/pipeline/ValidatePipeline.ts": {
+      "hash": "sha256:7129621fb6f65721ac362c5746f991ffb359f6b8a6b152eaecaec18d991a42cb",
+      "wikiPath": ".repowiki/plugin-wiki/src/pipeline/ValidatePipeline.md",
+      "summary": "The `ValidatePipeline` class in the `plugin-wiki/src/pipeline/ValidatePipeline` module is responsible for validating the structure and content of a pipeline configuration. It ensures that all required fields are present and conform to expected types and formats. This class is used to enforce consistency and correctness during pipeline setup."
+    },
+    "packages/plugin-wiki/src/pipeline/render.ts": {
+      "hash": "sha256:6f3c863907c71a118ca89e93231c484a555009e5c77e24c50ad46480932e5750",
+      "wikiPath": ".repowiki/plugin-wiki/src/pipeline/render.md",
+      "summary": "The `render` module in `plugin-wiki/src/pipeline/render` provides functions for processing and rendering wiki content. `collectAll` gathers all necessary data for rendering, while `renderMarkdown` converts markdown content into a rendered format. These functions are used together to prepare and display wiki pages within the application."
+    },
+    "packages/plugin-wiki/src/pipeline/summarize.ts": {
+      "hash": "sha256:d278b16a548d16a769e4071962dcb03efa9f4674212c20d9cf3636f0267ff5bf",
+      "wikiPath": ".repowiki/plugin-wiki/src/pipeline/summarize.md",
+      "summary": "The `summarize` module in the `plugin-wiki` package provides utilities for generating summaries of code modules and handling potential errors during the summarization process. It includes `callWithRetry` for retrying failed operations, `buildModuleMessages` for constructing message lists for summarization, and `summarizeModule` and `summarizeParent` for generating summaries of individual modules and their parent contexts, respectively. These functions work together to ensure robust and accurate documentation generation."
+    },
+    "packages/plugin-wiki/src/analyzers/typescript/TypeScriptAnalyzer.ts": {
+      "hash": "sha256:053983bb877c2b1f36a93b75140e1d966ac1381c4096833c731ccbbe26b126b7",
+      "wikiPath": ".repowiki/plugin-wiki/src/analyzers/typescript/TypeScriptAnalyzer.md",
+      "summary": "The `TypeScriptAnalyzer` class is a module within the `plugin-wiki` project designed to analyze TypeScript code. It provides functionality for parsing and inspecting TypeScript files, extracting relevant information such as types, interfaces, and function signatures. This analyzer is used to generate documentation or perform static analysis on TypeScript projects."
+    },
+    "packages/plugin-wiki/src/analyzers/typescript/queries.ts": {
+      "hash": "sha256:3960574ebc7a01637b5cf18d618ffbc5778506b2f16da3f0c4f80159d78a9039",
+      "wikiPath": ".repowiki/plugin-wiki/src/analyzers/typescript/queries.md",
+      "summary": "The `extractExports` function is part of the TypeScript analyzer module located in `plugin-wiki/src/analyzers/typescript/queries`. It is designed to parse and extract exported symbols from a TypeScript source file. This function is used to gather information about what is being exported for documentation or dependency analysis purposes."
+    },
+    "packages/plugin-wiki/src/commands/wiki/generate.ts": {
+      "hash": "sha256:e441099940790d488ed3717132817287698e1eaed1be53f5299cbad7421101f4",
+      "wikiPath": ".repowiki/plugin-wiki/src/commands/wiki/generate.md",
+      "summary": "The `WikiGenerate` class in the `plugin-wiki/src/commands/wiki/generate` module is responsible for generating wiki content based on provided input. It handles the logic for creating or updating wiki pages within the application. The class is designed to be used as part of the wiki plugin's command system."
+    },
+    "packages/plugin-wiki/src/commands/wiki/update.ts": {
+      "hash": "sha256:62151659ce60c2fbab96a24d8b81a4549ee20a0b25e3abd8ce04c47d9fe319e0",
+      "wikiPath": ".repowiki/plugin-wiki/src/commands/wiki/update.md",
+      "summary": "The `WikiUpdate` class in the `plugin-wiki/src/commands/wiki/update` module is responsible for handling the update functionality within the wiki plugin. It provides methods to modify existing wiki pages or entries. The class is designed to integrate with the broader command structure of the application."
+    },
+    "packages/plugin-wiki/src/commands/wiki/validate.ts": {
+      "hash": "sha256:b8199cdecf4458e4fa8b084b60cd1c7103ed67db37518f8ec3da4af4ce4a658e",
+      "wikiPath": ".repowiki/plugin-wiki/src/commands/wiki/validate.md",
+      "summary": "**Module Summary:**  \nThe `wiki-validate` module contains the `WikiValidate` class, which is responsible for validating wiki-related data or structures within the application. It is part of the plugin-wiki project and resides in the `src/commands/wiki` directory. This class likely provides methods to ensure compliance with specific wiki formatting or content rules."
+    }
+  }
+}

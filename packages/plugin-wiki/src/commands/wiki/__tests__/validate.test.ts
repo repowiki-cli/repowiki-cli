@@ -6,4 +6,10 @@ describe('wiki:validate', () => {
     expect(WikiValidate.description).toBeDefined();
     expect(typeof WikiValidate.description).toBe('string');
   });
+
+  it('has --output flag with default .repowiki', () => {
+    const flag = WikiValidate.flags.output;
+    expect(flag).toBeDefined();
+    expect((flag as { default?: string }).default).toBe('.repowiki');
+  });
 });

@@ -4,3 +4,4 @@ dist/
 .yarn/install-state.gz
 *.tsbuildinfo
 .DS_Store
+.env

@@ -13,7 +13,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "prepack": "node ../../scripts/check-workspace-refs.js"
   },
   "devDependencies": {
     "typescript": "^5.6.0",

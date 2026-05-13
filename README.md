@@ -5,9 +5,9 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![Status: Design Phase](https://img.shields.io/badge/Status-Design%20Phase-blue.svg)]()
+[![Status: Alpha](https://img.shields.io/badge/Status-Alpha-orange.svg)]()
 
-> **Note:** This project is pre-v0.1 and in active design phase. The roadmap and harness support table describe planned capabilities, not shipped features.
+> **Note:** v0.1-alpha is shipped. `wiki:generate` and `wiki:validate` are fully functional. Layers 2 and 3 are in development.
 
 ---
 
@@ -19,23 +19,28 @@ npm install -g repowiki-cli
 
 **Prerequisites:**
 - Node.js 20 or higher
-- One of: OpenAI API key / Anthropic API key / [Ollama](https://ollama.ai) running locally
+- One of: OpenAI API key / Anthropic API key / Azure OpenAI / DashScope API key / DeepSeek API key / [Ollama](https://ollama.ai) running locally
 
 ## Quick Start
 
 ```bash
-# Generate wiki for current repository
-repowiki wiki generate --provider=openai
+# Generate wiki (DashScope / Qwen)
+repowiki wiki:generate --provider=dashscope --harness=claude-code
 
-# Generate CLAUDE.md for Claude Code integration
-repowiki wiki generate --harness=claude-code
+# Generate wiki (Anthropic)
+repowiki wiki:generate --provider=anthropic --harness=claude-code
+
+# Generate wiki (Azure OpenAI — --model sets the deployment name)
+repowiki wiki:generate --provider=azure --model=my-gpt4o-deployment
 
 # Validate wiki is in sync with codebase
-repowiki wiki validate
+repowiki wiki:validate
 
-# Query context
-repowiki context query "how does authentication work"
+# Preview without writing (no LLM calls)
+repowiki wiki:generate --provider=dashscope --dry-run
 ```
+
+API keys can be set via environment variables or a `.env` file in the project root. See [docs/providers.md](docs/providers.md) for all supported providers.
 
 ---
 
@@ -144,7 +149,7 @@ Harness-specific optimized presets (tuning prompt caching, context window usage,
 
 `repowiki-cli` is built around three extension points:
 
-**LLM Providers** — The core pipeline is LLM-agnostic. The provider layer is built on [LiteLLM](https://github.com/BerriAI/litellm), giving a unified interface to 100+ providers without per-provider adapters. First-class support for OpenAI, Anthropic, Google Gemini, Qwen (Alibaba Cloud), and Ollama (local models) is built in. Any OpenAI-compatible endpoint also works out of the box. **Note:** wiki generation sends code to the configured LLM provider by default. For sensitive or IP-restricted codebases, use Ollama or a private endpoint to keep code on-premise.
+**LLM Providers** — The core pipeline is LLM-agnostic. Built-in adapters for OpenAI, Anthropic, Azure OpenAI, DashScope (Qwen / Alibaba Cloud Bailian), DeepSeek, and Ollama (local models). Any OpenAI-compatible endpoint also works via `--provider=openai-compat:URL`. **Note:** wiki generation sends code to the configured LLM provider by default. For sensitive or IP-restricted codebases, use Ollama or a private Azure endpoint to keep code on-premise. See [docs/providers.md](docs/providers.md) for configuration details.
 
 **Output Backends** — Wiki output is decoupled from the generation pipeline. Default: local Markdown files. Planned plugins (v1.0): [Qdrant](https://qdrant.tech) (recommended for production), [Weaviate](https://weaviate.io) (native hybrid search), Chroma (lightweight prototyping), FAISS (local embeddings), pgvector (Postgres ecosystem). The backend interface spec (read/write/query contract) will be published ahead of v1.0 to enable community backends.
 
@@ -201,14 +206,16 @@ jobs:
         with:
           node-version: 20
       - run: npm install -g repowiki-cli
-      - run: repowiki wiki update --provider=openai
+      - run: repowiki wiki:update --provider=dashscope
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: update repowiki"
           file_pattern: ".repowiki/**"
 ```
+
+Replace `dashscope` / `DASHSCOPE_API_KEY` with your preferred provider. See [docs/providers.md](docs/providers.md).
 
 ### Block PRs when the wiki is stale
 
@@ -228,21 +235,21 @@ jobs:
         with:
           node-version: 20
       - run: npm install -g repowiki-cli
-      - run: repowiki wiki validate
+      - run: repowiki wiki:validate
 ```
 
-`repowiki wiki validate` exits with a non-zero code if the wiki is out of sync with the current codebase, failing the PR check and prompting the author to run `repowiki wiki update` locally before merging.
+`repowiki wiki:validate` exits with a non-zero code if the wiki is out of sync with the current codebase, failing the PR check and prompting the author to run `repowiki wiki:generate` locally before merging.
 
 ---
 
 ## Roadmap
 
 ### v0.1 — Foundation
-- [ ] Core CLI architecture and extension points
-- [ ] Wiki generation for TypeScript/JavaScript repos
-- [ ] Local Markdown output backend
-- [ ] Wiki freshness validation (`repowiki wiki validate`)
-- [ ] Claude Code and Cursor harness config generation
+- [x] Core CLI architecture and extension points
+- [x] Wiki generation for TypeScript/JavaScript repos
+- [x] Local Markdown output backend
+- [x] Wiki freshness validation (`repowiki wiki validate`)
+- [x] Claude Code and Cursor harness config generation
 
 ### v0.2 — Context Routing
 - [ ] Wiki indexing and RAG query interface
@@ -265,13 +272,11 @@ jobs:
 
 ## Contributing
 
-This project is in active design phase. The best way to contribute right now:
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup and contribution paths. The highest-impact contributions right now:
 
-- **Share your context problem** — open an issue describing how context explosion affects your team. Real cases shape the tool's priorities.
-- **Review the architecture** — the extension point design is open for feedback before v0.1 ships. Architecture discussion happens in [GitHub Issues](../../issues) under the `design` label.
-- **Build an analyzer** — if your primary language isn't TypeScript, a language analyzer PR is the highest-impact contribution.
-
-A `CONTRIBUTING.md` with detailed guidelines will be published alongside v0.1.
+- **Build a language analyzer** — if your primary language isn't TypeScript, implement the `Analyzer` interface from `@repowiki/core` and publish as `repowiki-plugin-analyzer-<lang>`.
+- **Build an output backend** — implement `OutputBackend` to support vector databases (Qdrant, Weaviate, pgvector, etc.) and publish as `repowiki-plugin-backend-<name>`.
+- **Share your context problem** — open an issue describing how context explosion affects your team.
 
 ---
 

@@ -20,16 +20,12 @@ jobs:
         with:
           node-version: 20
       - name: Install repowiki-cli
-        id: install
         run: npm install -g repowiki-cli
-        continue-on-error: true
       - name: Update wiki
-        if: steps.install.outcome == 'success'
-        run: repowiki wiki update --provider=openai
+        run: repowiki wiki update --provider=dashscope --model=qwen3-max || repowiki wiki generate --provider=dashscope --model=qwen3-max
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
       - name: Commit wiki changes
-        if: steps.install.outcome == 'success'
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: update repowiki"
