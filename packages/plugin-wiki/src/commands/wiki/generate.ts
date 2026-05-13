@@ -1,8 +1,8 @@
 import * as path from 'node:path';
 import { Command, Flags } from '@oclif/core';
 import dotenv from 'dotenv';
-import { createProgressReporter } from '../../progress.js';
 import { GeneratePipeline } from '../../pipeline/GeneratePipeline.js';
+import { createProgressReporter } from '../../progress.js';
 import { createProvider, providerEnvKey } from '../../providers/createProvider.js';
 
 export default class WikiGenerate extends Command {
