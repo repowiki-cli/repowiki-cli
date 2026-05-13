@@ -80,7 +80,8 @@ types.ts                          — AnalyzedNode (extends WikiNode + type + ex
                                     wikiFilePath(), collectNodes()
 analyzers/typescript/
   TypeScriptAnalyzer.ts           — implements Analyzer; file discovery (fast-glob + ignore),
-                                    monorepo package detection, directory-tree collapse
+                                    monorepo package detection, directory-tree collapse,
+                                    loose files (files outside packages/) included via empty-parentPath path
   queries.ts                      — Tree-sitter AST traversal for export extraction
 providers/
   OpenAIProvider.ts               — openai SDK (also used for Ollama/DashScope/DeepSeek)
@@ -95,7 +96,8 @@ harness/
   ClaudeCodeHarness.ts / CursorHarness.ts — implement HarnessGenerator
 pipeline/
   GeneratePipeline.ts             — analyze → summarize (concurrent batches) → render → write
-  ValidatePipeline.ts             — manifest diff; exits 1 when stale/new/deleted files found
+  ValidatePipeline.ts             — manifest diff using analyzeWithFileMap() (same discovery as
+                                    generate/update); exits 1 when stale/new/deleted files found
 commands/wiki/
   generate.ts / validate.ts       — thin oclif wrappers; load .env, validate flags, call pipelines
 ```
