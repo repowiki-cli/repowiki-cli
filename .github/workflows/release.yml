@@ -24,7 +24,7 @@ jobs:
           node-version: 20
           cache: yarn
 
-      - run: yarn install --frozen-lockfile
+      - run: yarn install --immutable
       - run: yarn build
 
       # Creates/updates the "Version Packages" PR when changesets are present.
