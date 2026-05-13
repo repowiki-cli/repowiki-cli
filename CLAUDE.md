@@ -125,10 +125,26 @@ Framework: Vitest. All LLM calls are mocked (`vi.mock('openai', ...)`); no netwo
 
 ## Changesets
 
-Every PR that changes a published package requires a changeset:
+**Every task that modifies a published package must include a changeset before the work is considered complete.** Create it as part of the same commit or a follow-up commit on the same branch — never leave it to the PR author later.
 
 ```bash
 yarn changeset
+# Select the affected package(s), choose bump type, enter a description
+```
+
+Bump type guide:
+- `patch` — bug fixes, internal refactors with no behavior change
+- `minor` — new features, behavior changes that are backward-compatible
+- `major` — breaking changes (API removal, flag rename, output format change)
+
+Manual alternative (non-interactive environments): create `.changeset/<kebab-slug>.md`:
+
+```md
+---
+"@repowiki/plugin-wiki": minor
+---
+
+Description of what changed and why.
 ```
 
 ## Release Workflow
