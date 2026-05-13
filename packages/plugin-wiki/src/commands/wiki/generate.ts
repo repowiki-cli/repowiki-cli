@@ -1,6 +1,7 @@
 import * as path from 'node:path';
 import { Command, Flags } from '@oclif/core';
 import dotenv from 'dotenv';
+import { createProgressReporter } from '../../progress.js';
 import { GeneratePipeline } from '../../pipeline/GeneratePipeline.js';
 import { createProvider, providerEnvKey } from '../../providers/createProvider.js';
 
@@ -49,10 +50,13 @@ export default class WikiGenerate extends Command {
       description: 'Print estimated token count and exit',
       default: false,
     }),
+    quiet: Flags.boolean({
+      description: 'Suppress all progress output',
+      default: false,
+    }),
   };
 
   async run(): Promise<void> {
-    // Load .env from the current working directory (override: false keeps explicit env vars)
     dotenv.config({ path: path.join(process.cwd(), '.env'), override: false });
 
     const { flags } = await this.parse(WikiGenerate);
@@ -60,13 +64,11 @@ export default class WikiGenerate extends Command {
     const rawOutput = flags.output;
     const outputPath = path.resolve(repoPath, rawOutput);
 
-    // Path traversal guard
     const resolvedRoot = path.resolve(repoPath);
     if (!outputPath.startsWith(resolvedRoot + path.sep) && outputPath !== resolvedRoot) {
       this.error('--output must be inside the repo root');
     }
 
-    // API key validation (skip for ollama and estimate mode)
     if (!flags.estimate) {
       const envKey = providerEnvKey(flags.provider);
       if (envKey && !flags['api-key'] && !process.env[envKey]) {
@@ -83,6 +85,7 @@ export default class WikiGenerate extends Command {
       apiKey: flags['api-key'],
     });
 
+    const onProgress = createProgressReporter({ quiet: flags.quiet });
     const pipeline = new GeneratePipeline(provider);
     await pipeline.run({
       provider: flags.provider,
@@ -94,6 +97,8 @@ export default class WikiGenerate extends Command {
       concurrency: flags.concurrency,
       repoPath,
       outputPath,
+      quiet: flags.quiet,
+      onProgress,
     });
   }
 }
