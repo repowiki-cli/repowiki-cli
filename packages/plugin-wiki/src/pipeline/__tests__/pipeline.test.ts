@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, stat, unlink, writeFile } from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import type { LLMProvider } from '@repowiki/core';
@@ -151,9 +151,9 @@ describe('ValidatePipeline', () => {
     const mgr = new ManifestManager(outputDir);
     const { TypeScriptAnalyzer } = await import('../../analyzers/typescript/TypeScriptAnalyzer.js');
     const analyzer = new TypeScriptAnalyzer();
-    const files = await analyzer.discoverFiles(tmpDir);
+    const { fileMap } = await analyzer.analyzeWithFileMap(tmpDir);
     const manifestFiles: Manifest['files'] = {};
-    for (const f of files) {
+    for (const f of fileMap.keys()) {
       const hash = await mgr.computeHash(path.join(tmpDir, f));
       manifestFiles[f] = { hash, wikiPath: '' };
     }
@@ -175,9 +175,9 @@ describe('ValidatePipeline', () => {
     const mgr = new ManifestManager(outputDir);
     const { TypeScriptAnalyzer } = await import('../../analyzers/typescript/TypeScriptAnalyzer.js');
     const analyzer = new TypeScriptAnalyzer();
-    const files = await analyzer.discoverFiles(tmpDir);
+    const { fileMap } = await analyzer.analyzeWithFileMap(tmpDir);
     const manifestFiles: Manifest['files'] = {};
-    for (const f of files) {
+    for (const f of fileMap.keys()) {
       manifestFiles[f] = { hash: 'sha256:old-hash', wikiPath: '' };
     }
     await mgr.save({
@@ -193,6 +193,35 @@ describe('ValidatePipeline', () => {
     await pipeline.run({ repoPath: tmpDir, outputPath: outputDir });
     expect(exitSpy).toHaveBeenCalledWith(1);
     expect(stdoutSpy.mock.calls.some((args) => String(args[0]).includes('stale'))).toBe(true);
+    exitSpy.mockRestore();
+    stdoutSpy.mockRestore();
+  });
+
+  it('exits 1 and reports deleted when a manifest file is missing from disk', async () => {
+    const mgr = new ManifestManager(outputDir);
+    const { TypeScriptAnalyzer } = await import('../../analyzers/typescript/TypeScriptAnalyzer.js');
+    const analyzer = new TypeScriptAnalyzer();
+    const { fileMap } = await analyzer.analyzeWithFileMap(tmpDir);
+    const manifestFiles: Record<string, { hash: string; wikiPath: string }> = {};
+    for (const f of fileMap.keys()) {
+      const hash = await mgr.computeHash(path.join(tmpDir, f));
+      manifestFiles[f] = { hash, wikiPath: '' };
+    }
+    await mgr.save({
+      version: 1,
+      generatedAt: new Date().toISOString(),
+      provider: 'test',
+      files: manifestFiles,
+    });
+
+    await unlink(path.join(tmpDir, 'src/utils.ts')); // uses static import added above
+
+    const pipeline = new ValidatePipeline();
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => {}) as never);
+    const stdoutSpy = vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
+    await pipeline.run({ repoPath: tmpDir, outputPath: outputDir });
+    expect(exitSpy).toHaveBeenCalledWith(1);
+    expect(stdoutSpy.mock.calls.some((args) => String(args[0]).includes('deleted'))).toBe(true);
     exitSpy.mockRestore();
     stdoutSpy.mockRestore();
   });

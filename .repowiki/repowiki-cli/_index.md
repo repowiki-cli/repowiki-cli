@@ -3,8 +3,8 @@
 > Path: `repowiki-cli`
 
 ## Overview
-The `repowiki-cli` package serves as the command-line interface (CLI) for the Repowiki tool. It includes a `run` module that acts as the entry point for executing CLI commands, and an `index` module that exports the `VERSION` constant representing the current version of the CLI. Together, these modules provide the core functionality and version information for the tool.
+The `repowiki-cli` package is the command-line interface (CLI) for the repowiki tool. It includes an `index` module that exports the current version of the CLI, and a `run` module that serves as the entry point for executing the tool. Together, these components provide version information and initiate CLI operations.
 
 ## Children
-- [run](./bin/run.md)
 - [index](./src/index.md)
+- [run](./bin/run.md)

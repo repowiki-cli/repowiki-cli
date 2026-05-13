@@ -91,6 +91,7 @@ export class UpdatePipeline {
     }
 
     // Step 7: Find parent nodes affected by deletions
+    const orphanedIndexPaths = new Set<string>();
     if (deleted.length > 0) {
       const wikiPathToNode = new Map<string, AnalyzedNode>();
       for (const node of collectAll(root)) {
@@ -100,7 +101,12 @@ export class UpdatePipeline {
         const deletedWikiAbs = nodePath.resolve(repoPath, m.files[relPath].wikiPath);
         const parentIndexAbs = nodePath.join(nodePath.dirname(deletedWikiAbs), '_index.md');
         const parentNode = wikiPathToNode.get(parentIndexAbs);
-        if (parentNode) changedNodes.add(parentNode);
+        if (parentNode) {
+          changedNodes.add(parentNode);
+        } else {
+          // The parent directory no longer exists in the new tree — its _index.md is orphaned
+          orphanedIndexPaths.add(parentIndexAbs);
+        }
       }
     }
 
@@ -120,12 +126,21 @@ export class UpdatePipeline {
     };
     await rebuildAffected(root);
 
-    // Step 9: Delete wiki files for deleted source files
+    // Step 9: Delete wiki files for deleted source files and prune empty directories
     const backend = new LocalMarkdownBackend(outputPath);
     for (const relPath of deleted) {
       const absWikiPath = nodePath.resolve(repoPath, m.files[relPath].wikiPath);
       await backend.delete(absWikiPath);
+      await backend.pruneEmptyDirs(nodePath.dirname(absWikiPath), outputPath);
       delete m.files[relPath];
+    }
+    // Delete orphaned directory _index.md files (directories fully removed from the new tree).
+    // Must run after the main deletion loop: pruneEmptyDirs in that loop stops when it finds
+    // the non-empty directory (still has _index.md). This pass removes the _index.md first,
+    // then calls pruneEmptyDirs again to finish removing the now-empty directory.
+    for (const orphanIndexAbs of orphanedIndexPaths) {
+      await backend.delete(orphanIndexAbs);
+      await backend.pruneEmptyDirs(nodePath.dirname(orphanIndexAbs), outputPath);
     }
 
     // Step 10: Write updated wiki files (changed modules + rebuilt parents)

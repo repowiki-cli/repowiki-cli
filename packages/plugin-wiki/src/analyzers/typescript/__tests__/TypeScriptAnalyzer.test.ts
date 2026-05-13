@@ -1,5 +1,7 @@
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import * as os from 'node:os';
 import * as path from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { TypeScriptAnalyzer } from '../TypeScriptAnalyzer.js';
 
 // The repo root of repowiki-cli itself — used as a real fixture
@@ -33,7 +35,10 @@ describe('TypeScriptAnalyzer', () => {
     it('root has package children for monorepo', async () => {
       const analyzer = new TypeScriptAnalyzer();
       const [root] = (await analyzer.analyze(REPO_ROOT)) as import('../../types.js').AnalyzedNode[];
-      expect(root.children.every((c) => c.type === 'package')).toBe(true);
+      // Loose files may also appear as non-package children — assert at least one package exists
+      expect(root.children.some((c) => c.type === 'package')).toBe(true);
+      // Verify a known package is present to prevent a regression where packages disappear
+      expect(root.children.some((c) => c.type === 'package' && c.path === 'core')).toBe(true);
     });
 
     it('core package node has correct path', async () => {
@@ -160,3 +165,68 @@ function collectAllModules(
 ): import('../../types.js').AnalyzedNode[] {
   return collectAll(node).filter((n) => n.type === 'module');
 }
+
+describe('TypeScriptAnalyzer — monorepo with loose files', () => {
+  let tmpDir: string;
+
+  beforeEach(async () => {
+    tmpDir = await mkdtemp(path.join(os.tmpdir(), 'repowiki-loose-'));
+    await writeFile(path.join(tmpDir, 'package.json'), JSON.stringify({ name: 'my-project' }));
+    await mkdir(path.join(tmpDir, 'packages/core/src'), { recursive: true });
+    await writeFile(
+      path.join(tmpDir, 'packages/core/package.json'),
+      JSON.stringify({ name: '@my/core' }),
+    );
+    await writeFile(
+      path.join(tmpDir, 'packages/core/src/index.ts'),
+      'export interface Foo { bar: string }',
+    );
+    await mkdir(path.join(tmpDir, 'scripts'), { recursive: true });
+    await writeFile(path.join(tmpDir, 'scripts/build.js'), '// build script');
+    await writeFile(path.join(tmpDir, 'setup.ts'), 'export const setup = true;');
+  });
+
+  afterEach(async () => {
+    await rm(tmpDir, { recursive: true, force: true });
+  });
+
+  it('fileMap includes loose files outside packages/', async () => {
+    const analyzer = new TypeScriptAnalyzer();
+    const { fileMap } = await analyzer.analyzeWithFileMap(tmpDir);
+    expect(fileMap.has('scripts/build.js')).toBe(true);
+    expect(fileMap.has('setup.ts')).toBe(true);
+    expect(fileMap.has('packages/core/src/index.ts')).toBe(true);
+  });
+
+  it('loose file node paths have no leading slash', async () => {
+    const analyzer = new TypeScriptAnalyzer();
+    const { fileMap } = await analyzer.analyzeWithFileMap(tmpDir);
+    const buildNode = fileMap.get('scripts/build.js');
+    expect(buildNode?.path).toBe('scripts/build');
+    const setupNode = fileMap.get('setup.ts');
+    expect(setupNode?.path).toBe('setup');
+  });
+
+  it('loose files in a subdirectory are grouped into a directory node on root', async () => {
+    const analyzer = new TypeScriptAnalyzer();
+    const { root } = (await analyzer.analyzeWithFileMap(tmpDir)) as {
+      root: import('../../types.js').AnalyzedNode;
+      fileMap: Map<string, import('../../types.js').AnalyzedNode>;
+    };
+    const scriptsNode = root.children.find((c) => c.path === 'scripts');
+    expect(scriptsNode).toBeDefined();
+    expect(scriptsNode?.type).toBe('directory');
+  });
+
+  it('package nodes and loose-file nodes coexist as root.children', async () => {
+    const analyzer = new TypeScriptAnalyzer();
+    const { root } = (await analyzer.analyzeWithFileMap(tmpDir)) as {
+      root: import('../../types.js').AnalyzedNode;
+      fileMap: Map<string, import('../../types.js').AnalyzedNode>;
+    };
+    const coreNode = root.children.find((c) => c.type === 'package' && c.path === 'core');
+    expect(coreNode).toBeDefined();
+    const scriptsNode = root.children.find((c) => c.path === 'scripts');
+    expect(scriptsNode).toBeDefined();
+  });
+});
