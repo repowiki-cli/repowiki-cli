@@ -1,5 +1,6 @@
 import * as nodePath from 'node:path';
 import type { WikiNode } from '@repowiki/core';
+import type { ProgressReporter } from './progress.js';
 
 export type NodeType = 'project' | 'package' | 'directory' | 'module';
 
@@ -40,6 +41,8 @@ export interface GenerateOptions {
   concurrency: number;
   repoPath: string;
   outputPath: string;
+  quiet: boolean;       // consumed only by the command layer to build the reporter; pipeline does NOT read this
+  onProgress?: ProgressReporter;
 }
 
 export interface ValidateOptions {
