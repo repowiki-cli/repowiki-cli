@@ -262,6 +262,9 @@ describe('UpdatePipeline', () => {
       });
 
       await expect(readFile(legacyWikiPath)).rejects.toThrow(); // wiki file removed
+      // Verify the directory's _index.md was also cleaned up (not just the module file)
+      const legacyDirIndexPath = path.join(path.dirname(legacyWikiPath), '_index.md');
+      await expect(readFile(legacyDirIndexPath)).rejects.toThrow(); // _index.md removed
       await expect(stat(path.dirname(legacyWikiPath))).rejects.toMatchObject({ code: 'ENOENT' }); // empty parent dir pruned
 
       const manifestAfter = JSON.parse(

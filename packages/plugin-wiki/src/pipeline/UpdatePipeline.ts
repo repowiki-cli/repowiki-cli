@@ -134,7 +134,10 @@ export class UpdatePipeline {
       await backend.pruneEmptyDirs(nodePath.dirname(absWikiPath), outputPath);
       delete m.files[relPath];
     }
-    // Delete orphaned directory _index.md files (directories removed from the new tree)
+    // Delete orphaned directory _index.md files (directories fully removed from the new tree).
+    // Must run after the main deletion loop: pruneEmptyDirs in that loop stops when it finds
+    // the non-empty directory (still has _index.md). This pass removes the _index.md first,
+    // then calls pruneEmptyDirs again to finish removing the now-empty directory.
     for (const orphanIndexAbs of orphanedIndexPaths) {
       await backend.delete(orphanIndexAbs);
       await backend.pruneEmptyDirs(nodePath.dirname(orphanIndexAbs), outputPath);
