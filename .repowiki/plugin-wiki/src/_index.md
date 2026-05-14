@@ -3,7 +3,7 @@
 > Path: `plugin-wiki/src`
 
 ## Overview
-The `plugin-wiki` directory is the core of the wiki plugin in a TypeScript project, containing modules for processing, generating, and managing wiki content. It includes entry points, progress tracking utilities, type definitions, backend and provider implementations, AI harnesses, data pipelines, and tools for analyzing and generating wiki content from code. Key components include the `TypeScriptAnalyzer`, `LocalMarkdownBackend`, and various AI service providers.
+The `plugin-wiki/src` directory serves as the core of the wiki plugin, providing the entry point (`index`) and modular components for processing, generating, and managing wiki content. It includes type definitions (`types`), progress tracking utilities (`progress`), backend integrations (`backends`), and supporting modules such as `pipeline`, `providers`, and `typescript` to facilitate wiki generation from a codebase.
 
 ## Children
 - [index](./index.md)
@@ -11,7 +11,7 @@ The `plugin-wiki` directory is the core of the wiki plugin in a TypeScript proje
 - [types](./types.md)
 - [backends](./backends/_index.md)
 - [harness](./harness/_index.md)
-- [providers](./providers/_index.md)
 - [pipeline](./pipeline/_index.md)
+- [providers](./providers/_index.md)
 - [typescript](./analyzers/typescript/_index.md)
 - [wiki](./commands/wiki/_index.md)

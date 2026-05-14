@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generatedAt": "2026-05-13T08:50:27.684Z",
+  "generatedAt": "2026-05-14T04:59:01.739Z",
   "provider": "dashscope",
   "files": {
     "packages/cli/src/index.ts": {
@@ -39,9 +39,9 @@
       "summary": "The `ContextServe` class in the `plugin-context/src/commands/context/serve` module is responsible for initiating a local development server for the plugin context. It handles command-line arguments and manages the server lifecycle during development. This module is part of the CLI tooling used to test and debug plugin functionality in real time."
     },
     "packages/plugin-spec/src/index.ts": {
-      "hash": "sha256:5cbb626b9120845f915fd9f0eadefa02ff80bc557f4631d0c16234a17e56dca5",
+      "hash": "sha256:96f014d16502c2a8dc8f5a3db466e3d2f66759db601466f4417a40aabf3ca414",
       "wikiPath": ".repowiki/plugin-spec/src/index.md",
-      "summary": "The `plugin-spec/src/index` module serves as the entry point for plugin-related definitions and configurations. It does not export any public APIs directly but is likely used internally or by other modules within the plugin specification package. This file may define types, interfaces, or constants that are consumed by other parts of the codebase."
+      "summary": "The module at `plugin-spec/src/index` serves as an entry point for the plugin specification but does not export any public APIs or functionality. It may be used for side effects, type definitions, or as a placeholder for future exports."
     },
     "packages/plugin-spec/src/commands/spec/atdd.ts": {
       "hash": "sha256:973603a0b2fab71cdccb296aed8bc7275bd0f98859d98e704e1ac52eaf94e765",
@@ -74,9 +74,9 @@
       "summary": "**plugin-wiki/src/types**  \nThis TypeScript module defines types and interfaces used for processing and generating wiki content from a codebase. It includes node types, manifest structures, and options interfaces for analysis and generation. It also provides utility functions like `wikiFilePath` and `collectNodes` for navigating and organizing documentation nodes."
     },
     "packages/plugin-wiki/src/backends/LocalMarkdownBackend.ts": {
-      "hash": "sha256:0e5c0d29e034bbf6bbe6f92f87889b355e5a1734e67b9dc37ac5cc04fde75739",
+      "hash": "sha256:01ab7c21af77ef3aeeddd7394a3756f932d1b44e6ef69552e69379fbb33c5a2f",
       "wikiPath": ".repowiki/plugin-wiki/src/backends/LocalMarkdownBackend.md",
-      "summary": "The `LocalMarkdownBackend` class in the `plugin-wiki/src/backends/LocalMarkdownBackend` module is responsible for handling local Markdown file operations within the wiki plugin. It provides methods for reading, writing, and managing Markdown content stored locally. This backend is designed to work with files directly on the filesystem, offering a simple and efficient way to access and modify wiki content."
+      "summary": "The `LocalMarkdownBackend` class provides a backend implementation for managing wiki content stored as local Markdown files. It handles reading, writing, and listing Markdown documents from the filesystem, enabling offline or locally-hosted wiki functionality."
     },
     "packages/plugin-wiki/src/backends/ManifestManager.ts": {
       "hash": "sha256:e9caabf29f928f597a546b79f80d8afd846095e5c41f86bdb0ec754fe7b56ea8",
