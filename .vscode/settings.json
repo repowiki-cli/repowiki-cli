@@ -1,4 +1,5 @@
 {
+  "biome.lsp.bin": "${workspaceFolder}/node_modules/.bin/biome",
   "editor.codeActionsOnSave": {
     "source.fixAll.biome": "explicit",
     "source.organizeImports.biome": "explicit"

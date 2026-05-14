@@ -1,4 +1,4 @@
-import { mkdir, readFile, readdir, rmdir, unlink, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, rmdir, unlink, writeFile } from 'node:fs/promises';
 import * as path from 'node:path';
 import type { OutputBackend, WikiNode } from '@repowiki/core';
 
