@@ -59,4 +59,7 @@ jobs:
           node-version: 20
           cache: yarn
       - run: yarn install --immutable
+      - name: Build tree-sitter native bindings
+        run: npx --yes node-gyp rebuild
+        working-directory: node_modules/tree-sitter
       - run: yarn test

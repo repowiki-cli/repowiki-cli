@@ -23,7 +23,7 @@ export class ManifestManager {
   }
 
   async save(manifest: AnyManifest): Promise<void> {
-    await writeFile(this.tmpPath, JSON.stringify(manifest, null, 2), 'utf-8');
+    await writeFile(this.tmpPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf-8');
     await rename(this.tmpPath, this.manifestPath);
   }
 
