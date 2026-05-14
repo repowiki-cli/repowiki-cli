@@ -1,13 +1,32 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.4.15/schema.json",
-  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
-  "files": {
-    "includes": ["**", "!**/package.json", "!.claude", "!**/packages/**/*/dist/", "!**/.yarn"]
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
   },
-  "assist": { "actions": { "source": { "organizeImports": "on" } } },
+  "files": {
+    "includes": [
+      "**",
+      "!**/package.json",
+      "!.claude",
+      "!**/packages/**/*/dist",
+      "!**/.yarn",
+      "!.repowiki"
+    ]
+  },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
   "linter": {
     "enabled": true,
-    "rules": { "recommended": true }
+    "rules": {
+      "recommended": true
+    }
   },
   "formatter": {
     "enabled": true,
@@ -16,6 +35,8 @@
     "lineWidth": 100
   },
   "javascript": {
-    "formatter": { "quoteStyle": "single" }
+    "formatter": {
+      "quoteStyle": "single"
+    }
   }
 }
