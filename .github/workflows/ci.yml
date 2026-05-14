@@ -59,4 +59,5 @@ jobs:
           node-version: 20
           cache: yarn
       - run: yarn install --immutable
+      - run: yarn rebuild
       - run: yarn test
