@@ -5,9 +5,9 @@ __metadata:
   version: 9
   cacheKey: 10c0
 
-"@anthropic-ai/sdk@npm:^0.95.2":
-  version: 0.95.2
-  resolution: "@anthropic-ai/sdk@npm:0.95.2"
+"@anthropic-ai/sdk@npm:^0.96.0":
+  version: 0.96.0
+  resolution: "@anthropic-ai/sdk@npm:0.96.0"
   dependencies:
     json-schema-to-ts: "npm:^3.1.1"
     standardwebhooks: "npm:^1.0.0"
@@ -18,7 +18,7 @@ __metadata:
       optional: true
   bin:
     anthropic-ai-sdk: bin/cli
-  checksum: 10c0/4a03dba50eda5dec893c0f20bc834dbd3e4a420702820e7586c06d01a70ddcece10228317fefae54f3894fc239bd893beba40ee1adf8846969f05bdd153e54e7
+  checksum: 10c0/e721b356009e27ee614b285019825471cd564bfd115cf7f4be2db0da64a2c3c5113d130d02929dc3f3beb1644ace549ec2ebd3a237778f43578aa082dbdd391a
   languageName: node
   linkType: hard
 
@@ -680,7 +680,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@repowiki/plugin-wiki@workspace:packages/plugin-wiki"
   dependencies:
-    "@anthropic-ai/sdk": "npm:^0.95.2"
+    "@anthropic-ai/sdk": "npm:^0.96.0"
     "@oclif/core": "npm:^4.0.0"
     "@repowiki/core": "workspace:*"
     "@types/node": "npm:^20.0.0"
