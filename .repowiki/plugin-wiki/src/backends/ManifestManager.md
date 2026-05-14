@@ -3,7 +3,7 @@
 > Path: `plugin-wiki/src/backends/ManifestManager`
 
 ## Overview
-The `ManifestManager` class in the `plugin-wiki/src/backends/ManifestManager` module is responsible for managing application manifests. It provides methods to load, parse, and update manifest files used by the plugin system. This class ensures that manifest data is consistently accessed and maintained throughout the application.
+The `ManifestManager` class in `plugin-wiki/src/backends/ManifestManager` handles the loading, parsing, and management of plugin manifest files. It provides methods to retrieve manifest metadata and ensures consistent access to plugin configuration across the application.
 
 ## Exports
 - `class ManifestManager`

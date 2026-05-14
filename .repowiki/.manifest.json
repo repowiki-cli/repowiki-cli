@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generatedAt": "2026-05-14T04:59:01.739Z",
+  "generatedAt": "2026-05-14T05:12:39.900Z",
   "provider": "dashscope",
   "files": {
     "packages/cli/src/index.ts": {
@@ -79,9 +79,9 @@
       "summary": "The `LocalMarkdownBackend` class provides a backend implementation for managing wiki content stored as local Markdown files. It handles reading, writing, and listing Markdown documents from the filesystem, enabling offline or locally-hosted wiki functionality."
     },
     "packages/plugin-wiki/src/backends/ManifestManager.ts": {
-      "hash": "sha256:e9caabf29f928f597a546b79f80d8afd846095e5c41f86bdb0ec754fe7b56ea8",
+      "hash": "sha256:24cecef3afea3622831daaab6265f8b0d7fa3328e232abc2b02ac56f7423a3ac",
       "wikiPath": ".repowiki/plugin-wiki/src/backends/ManifestManager.md",
-      "summary": "The `ManifestManager` class in the `plugin-wiki/src/backends/ManifestManager` module is responsible for managing application manifests. It provides methods to load, parse, and update manifest files used by the plugin system. This class ensures that manifest data is consistently accessed and maintained throughout the application."
+      "summary": "The `ManifestManager` class in `plugin-wiki/src/backends/ManifestManager` handles the loading, parsing, and management of plugin manifest files. It provides methods to retrieve manifest metadata and ensures consistent access to plugin configuration across the application."
     },
     "packages/plugin-wiki/src/harness/ClaudeCodeHarness.ts": {
       "hash": "sha256:646e17a8d03daca1232278f17df789938eae8119e22251f6078c4d273feb3dfe",
