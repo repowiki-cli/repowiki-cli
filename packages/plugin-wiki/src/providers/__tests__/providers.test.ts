@@ -5,9 +5,10 @@ vi.mock('openai', () => {
   const mockCreate = vi.fn().mockResolvedValue({
     choices: [{ message: { content: 'openai response' } }],
   });
-  const MockClient = vi.fn().mockImplementation(() => ({
-    chat: { completions: { create: mockCreate } },
-  }));
+  // biome-ignore lint/complexity/useArrowFunction: regular function required for `new` calls in Vitest 4.x
+  const MockClient = vi.fn().mockImplementation(function () {
+    return { chat: { completions: { create: mockCreate } } };
+  });
   return {
     default: MockClient,
     AzureOpenAI: MockClient,
@@ -21,9 +22,10 @@ vi.mock('@anthropic-ai/sdk', () => {
     content: [{ type: 'text', text: 'anthropic response' }],
   });
   return {
-    default: vi.fn().mockImplementation(() => ({
-      messages: { create: mockCreate },
-    })),
+    // biome-ignore lint/complexity/useArrowFunction: regular function required for `new` calls in Vitest 4.x
+    default: vi.fn().mockImplementation(function () {
+      return { messages: { create: mockCreate } };
+    }),
     __mockCreate: mockCreate,
   };
 });
