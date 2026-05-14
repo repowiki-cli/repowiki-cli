@@ -32,8 +32,8 @@ import Anthropic from '@anthropic-ai/sdk';
 import OpenAI, { AzureOpenAI } from 'openai';
 import { AnthropicProvider } from '../AnthropicProvider.js';
 import { AzureOpenAIProvider } from '../AzureOpenAIProvider.js';
-import { OpenAIProvider } from '../OpenAIProvider.js';
 import { createProvider } from '../createProvider.js';
+import { OpenAIProvider } from '../OpenAIProvider.js';
 
 describe('OpenAIProvider', () => {
   it('calls chat.completions.create with correct params', async () => {
