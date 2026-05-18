@@ -3,7 +3,7 @@
 > Path: `plugin-context/src/commands/context/serve`
 
 ## Overview
-The `ContextServe` class in the `plugin-context/src/commands/context/serve` module is responsible for initiating a local development server for the plugin context. It handles command-line arguments and manages the server lifecycle during development. This module is part of the CLI tooling used to test and debug plugin functionality in real time.
+The `ContextServe` class in the `plugin-context/src/commands/context/serve` module is responsible for handling the "serve" command within the context plugin. It provides functionality to start a local development server for the context module. The class includes methods for initializing, running, and managing the server lifecycle.
 
 ## Exports
 - `class ContextServe`

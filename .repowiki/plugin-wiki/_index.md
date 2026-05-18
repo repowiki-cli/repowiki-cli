@@ -3,7 +3,7 @@
 > Path: `plugin-wiki`
 
 ## Overview
-The `plugin-wiki` package is a TypeScript-based wiki plugin designed to integrate wiki functionality into a larger application. Its core logic resides in the `src` directory, which includes the main entry point (`index.ts`) and is organized into submodules for modular and maintainable code structure.
+The `plugin-wiki` package is the core module of the wiki plugin in a TypeScript project. It includes functionality for progress tracking, types, backend utilities, harness execution, AI providers, content pipelines, and core wiki commands. The package is organized within the `src/plugin-wiki` directory.
 
 ## Children
 - [src](./src/_index.md)

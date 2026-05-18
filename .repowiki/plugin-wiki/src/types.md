@@ -3,8 +3,7 @@
 > Path: `plugin-wiki/src/types`
 
 ## Overview
-**plugin-wiki/src/types**  
-This TypeScript module defines types and interfaces used for processing and generating wiki content from a codebase. It includes node types, manifest structures, and options interfaces for analysis and generation. It also provides utility functions like `wikiFilePath` and `collectNodes` for navigating and organizing documentation nodes.
+The `plugin-wiki/src/types` module defines TypeScript types and interfaces used throughout the wiki plugin, including node and manifest structures, configuration options, and utility functions. It includes types like `NodeType`, `Manifest`, and `AnyManifest`, as well as interfaces for handling node analysis, generation, and validation. The module also provides helper functions such as `wikiFilePath` for determining output file paths and `collectNodes` for traversing node trees.
 
 ## Exports
 - `type NodeType`

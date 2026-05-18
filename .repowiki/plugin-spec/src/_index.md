@@ -3,7 +3,7 @@
 > Path: `plugin-spec/src`
 
 ## Overview
-This directory contains the core structure for a plugin specification in a TypeScript project. The `index` module acts as the entry point but does not expose any public APIs, while the `spec` subdirectory likely holds the detailed specification files or definitions.
+The `plugin-spec` directory serves as the core module for plugin specifications in the TypeScript project. It includes an `index` file that acts as the entry point for the plugin specifications and a `spec` subdirectory containing the core command handlers for functionalities such as ATDD, review, and SDD. This structure organizes the plugin's logic and provides a clear入口 for integration and extension.
 
 ## Children
 - [index](./index.md)

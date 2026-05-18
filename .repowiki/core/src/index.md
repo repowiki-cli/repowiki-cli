@@ -3,7 +3,7 @@
 > Path: `core/src/index`
 
 ## Overview
-The `core/src/index` module defines foundational interfaces for a repowiki application. It includes types such as `ChatMessage`, `WikiNode`, `LLMProvider`, `OutputBackend`, `Analyzer`, and `RepowikiConfig`, which are used to structure data and define contracts for various components of the system. These interfaces serve as the core building blocks for implementing chat interactions, wiki parsing, language model integration, and configuration management.
+The `core/src/index` module defines a set of core interfaces used throughout the application. It includes types for chat messages, wiki nodes, LLM providers, output backends, analyzers, and configuration settings. These interfaces serve as contracts for various components, enabling modular and extensible code design.
 
 ## Exports
 - `interface ChatMessage`

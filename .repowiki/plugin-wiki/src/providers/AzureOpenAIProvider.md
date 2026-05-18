@@ -3,7 +3,7 @@
 > Path: `plugin-wiki/src/providers/AzureOpenAIProvider`
 
 ## Overview
-The `AzureOpenAIProvider` class in the `plugin-wiki/src/providers/AzureOpenAIProvider` module is responsible for integrating with Azure OpenAI services. It provides methods to interact with Azure's AI models, handling authentication and API requests. This class serves as a bridge between the application and the Azure OpenAI platform, enabling seamless model utilization.
+**AzureOpenAIProvider** is a TypeScript class that provides integration with Azure OpenAI services. It handles authentication, request formatting, and response processing for interactions with Azure's AI models. This provider is used within the wiki plugin to enable AI-powered features such as content generation and summarization.
 
 ## Exports
 - `class AzureOpenAIProvider`

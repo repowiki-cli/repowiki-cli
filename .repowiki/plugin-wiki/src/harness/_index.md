@@ -3,7 +3,7 @@
 > Path: `plugin-wiki/src/harness`
 
 ## Overview
-The directory contains harness utilities for interacting with AI code generation APIs and managing plugin states. It includes `ClaudeCodeHarness` for communicating with the Claude API, `CursorHarness` for handling cursor states, and `HarnessWriter` for generating harness blocks used in testing. These components support the development and testing of plugin functionality within the project.
+The directory contains harness-related modules used for executing code in specific environments and managing text interfaces. It includes `ClaudeCodeHarness` for running code with the Claude AI model, `CursorHarness` for handling cursor operations in text interfaces, and `HarnessWriter` for generating and writing harness blocks to output. These components work together to support code execution and interaction within a structured environment.
 
 ## Children
 - [ClaudeCodeHarness](./ClaudeCodeHarness.md)
