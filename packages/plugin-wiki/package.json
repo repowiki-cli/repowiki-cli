@@ -1,6 +1,6 @@
 {
   "name": "@repowiki/plugin-wiki",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "RepoWiki generation plugin for repowiki-cli",
   "main": "./dist/index.js",
   "exports": {
