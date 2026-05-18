@@ -7,7 +7,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Status: Alpha](https://img.shields.io/badge/Status-Alpha-orange.svg)]()
 
-> **注意：** v0.1-alpha 已发布。`wiki:generate` 和 `wiki:validate` 已全面可用。第二层和第三层正在开发中。
+> **注意：** v0.1.1 已发布。`wiki:generate`、`wiki:validate` 和 `wiki:update` 已全面可用。第二层和第三层正在开发中。
 
 ---
 
@@ -32,6 +32,9 @@ repowiki wiki:generate --provider=anthropic --harness=claude-code
 
 # 生成 wiki（Azure OpenAI，--model 指定部署名称）
 repowiki wiki:generate --provider=azure --model=my-gpt4o-deployment
+
+# 仅对已变更的文件做增量更新
+repowiki wiki:update --provider=dashscope
 
 # 验证 wiki 与代码库是否同步
 repowiki wiki:validate
@@ -96,7 +99,7 @@ wiki 只有能快速找到正确部分才有价值。第二层将生成的 wiki 
 repowiki-cli
 ├── wiki          # 第一层：RepoWiki 生成
 │   ├── generate  # 分析仓库并生成层级化 wiki
-│   ├── update    # 代码变更后的增量更新（v0.2）
+│   ├── update    # 仅对变更文件做增量更新
 │   └── validate  # 检查 wiki 与代码库的同步状态
 ├── context       # 第二层：上下文路由
 │   ├── index     # 基于 wiki 构建检索索引
@@ -244,17 +247,17 @@ jobs:
 
 ## 路线图
 
-### v0.1 — 基础架构
+### v0.1 ✅ — 基础架构（已发布：v0.1.1）
 - [x] 核心 CLI 架构与扩展点
 - [x] TypeScript/JavaScript 仓库的 wiki 生成
 - [x] 本地 Markdown 输出后端
-- [x] Wiki 同步状态验证（`repowiki wiki validate`）
+- [x] Wiki 同步状态验证（`repowiki wiki:validate`）
 - [x] Claude Code 和 Cursor harness 配置生成
+- [x] 增量 wiki 更新（`repowiki wiki:update`）
 
 ### v0.2 — 上下文路由
 - [ ] Wiki 索引与 RAG 查询接口
 - [ ] MCP 服务模式（`repowiki context serve`）——启用 Claude Code MCP 集成
-- [ ] 增量 wiki 更新（git-diff 感知），并自动触发重新索引以保持检索索引同步
 
 ### v0.3 — 规范生成
 - [ ] 基于 wiki 的 SDD 模板生成

@@ -7,7 +7,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Status: Alpha](https://img.shields.io/badge/Status-Alpha-orange.svg)]()
 
-> **Note:** v0.1-alpha is shipped. `wiki:generate` and `wiki:validate` are fully functional. Layers 2 and 3 are in development.
+> **Note:** v0.1.1 is released. `wiki:generate`, `wiki:validate`, and `wiki:update` are fully functional. Layers 2 and 3 are in development.
 
 ---
 
@@ -32,6 +32,9 @@ repowiki wiki:generate --provider=anthropic --harness=claude-code
 
 # Generate wiki (Azure OpenAI — --model sets the deployment name)
 repowiki wiki:generate --provider=azure --model=my-gpt4o-deployment
+
+# Incrementally update wiki for changed files only
+repowiki wiki:update --provider=dashscope
 
 # Validate wiki is in sync with codebase
 repowiki wiki:validate
@@ -96,7 +99,7 @@ The outcome: AI output becomes predictable. Design reviews become faster. Onboar
 repowiki-cli
 ├── wiki          # Layer 1: RepoWiki generation
 │   ├── generate  # Analyze repo and produce layered wiki
-│   ├── update    # Incremental update on code changes (v0.2)
+│   ├── update    # Incremental update for changed files only
 │   └── validate  # Check wiki freshness against codebase
 ├── context       # Layer 2: Context routing
 │   ├── index     # Build retrieval index from wiki
@@ -244,17 +247,17 @@ jobs:
 
 ## Roadmap
 
-### v0.1 — Foundation
+### v0.1 ✅ — Foundation (released: v0.1.1)
 - [x] Core CLI architecture and extension points
 - [x] Wiki generation for TypeScript/JavaScript repos
 - [x] Local Markdown output backend
-- [x] Wiki freshness validation (`repowiki wiki validate`)
+- [x] Wiki freshness validation (`repowiki wiki:validate`)
 - [x] Claude Code and Cursor harness config generation
+- [x] Incremental wiki updates (`repowiki wiki:update`)
 
 ### v0.2 — Context Routing
 - [ ] Wiki indexing and RAG query interface
 - [ ] MCP server mode (`repowiki context serve`) — enables Claude Code MCP integration
-- [ ] Incremental wiki updates (git-diff aware), with automatic re-indexing to keep the retrieval index in sync
 
 ### v0.3 — Spec Generation
 - [ ] SDD template generation from wiki

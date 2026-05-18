@@ -3,7 +3,7 @@
 > Path: `core`
 
 ## Overview
-This package serves as the core module of the application, defining essential interfaces and configurations. It includes types such as `ChatMessage`, `WikiNode`, `LLMProvider`, `OutputBackend`, `Analyzer`, and `RepowikiConfig` that are used across the codebase. The main entry point is `core/src/index`, which exports these core definitions for external use.
+The `node` package in the TypeScript project serves as a foundational module, containing the `core/src/index` module. This module defines a set of core interfaces that are utilized throughout the application. It provides a standardized type definition structure to ensure consistency across different parts of the codebase.
 
 ## Children
 - [index](./src/index.md)

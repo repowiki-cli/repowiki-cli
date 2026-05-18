@@ -3,7 +3,7 @@
 > Path: `plugin-wiki/src/analyzers/typescript/queries`
 
 ## Overview
-The `extractExports` function is part of the TypeScript analyzer module located in the `plugin-wiki/src/analyzers/typescript/queries` directory. It is designed to parse and extract exported symbols from TypeScript source files. This function is used to gather information about what is being exported for documentation or dependency analysis purposes.
+The `extractExports` function is part of the TypeScript analyzer module within the wiki plugin. It is designed to extract exported symbols from a TypeScript file. This function is used to gather information about what is publicly available in a given module.
 
 ## Exports
 - `function extractExports`

@@ -3,7 +3,7 @@
 > Path: `plugin-wiki/src/pipeline/summarize`
 
 ## Overview
-The `summarize` module in the `plugin-wiki` package provides utilities for generating summaries of code modules and handling potential errors during the summarization process. It includes `callWithRetry` for retrying failed operations, `buildModuleMessages` for constructing message sequences, and `summarizeModule` and `summarizeParent` for generating summaries of individual modules and their parent contexts, respectively. These functions work together to ensure robust and context-aware documentation generation.
+The `summarize` module in the `plugin-wiki` package provides utilities for generating summaries of code modules. It includes `callWithRetry` for handling function calls with retry logic, `buildModuleMessages` for constructing message sequences, and `summarizeModule` and `summarizeParent` for generating summary text for modules and their parents, respectively. These functions are designed to enhance the reliability and clarity of documentation generation processes.
 
 ## Exports
 - `function callWithRetry`

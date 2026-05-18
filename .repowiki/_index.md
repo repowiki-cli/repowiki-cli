@@ -3,7 +3,7 @@
 > Path: `repowiki-cli-monorepo`
 
 ## Overview
-The project is a TypeScript-based toolset for the Repowiki application, organized into multiple packages. It includes `repowiki-cli` for command-line interaction, `@repowiki/core` for essential interfaces and configurations, `@repowiki/plugin-context` for managing plugin contexts, `@repowiki/plugin-spec` for defining plugin specifications, and `@repowiki/plugin-wiki` as the core wiki plugin module. Together, these packages enable a modular and extensible wiki-based development environment.
+The project node in the TypeScript codebase includes several key packages: `repowiki-cli` provides the command-line interface, `@repowiki/core` serves as the foundational module, `@repowiki/plugin-context` manages plugin contexts, `@repowiki/plugin-spec` defines plugin specifications, and `@repowiki/plugin-wiki` is the core module for the wiki plugin. Each package contributes to the overall functionality and extensibility of the repowiki tool. Together, they form a modular architecture for managing wiki-based documentation and plugin systems.
 
 ## Children
 - [repowiki-cli](./repowiki-cli/_index.md)
