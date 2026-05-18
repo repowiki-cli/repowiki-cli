@@ -1,5 +1,11 @@
 # @repowiki/plugin-wiki
 
+## 0.3.0
+
+### Minor Changes
+
+- [#19](https://github.com/repowiki-cli/repowiki-cli/pull/19) [`7cc16ba`](https://github.com/repowiki-cli/repowiki-cli/commit/7cc16ba564a011b3667697c2444bd256cfaad47f) Thanks [@Oscaner](https://github.com/Oscaner)! - Replace per-file module summary table in harness output (`--harness=claude-code`, `--harness=cursor`) with a compact package/directory architecture tree. For projects with hundreds or thousands of source files, the harness block now stays small (5–20 lines) instead of growing with the file count.
+
 ## 0.2.0
 
 ### Minor Changes

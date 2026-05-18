@@ -1,5 +1,12 @@
 # repowiki-cli
 
+## 0.1.2
+
+### Patch Changes
+
+- Updated dependencies [[`7cc16ba`](https://github.com/repowiki-cli/repowiki-cli/commit/7cc16ba564a011b3667697c2444bd256cfaad47f)]:
+  - @repowiki/plugin-wiki@0.3.0
+
 ## 0.1.1
 
 ### Patch Changes
