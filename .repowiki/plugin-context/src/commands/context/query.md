@@ -3,7 +3,8 @@
 > Path: `plugin-context/src/commands/context/query`
 
 ## Overview
-**ContextQuery** is a TypeScript class located in the `plugin-context/src/commands/context/query` module. It provides functionality for querying contextual data within the plugin system. The class is designed to be used with command-line interfaces to retrieve and process context-specific information.
+**Module Summary:**  
+The `plugin-context/src/commands/context/query` module exports the `ContextQuery` class, which is responsible for handling context-related queries within the plugin system. It provides functionality to retrieve and process contextual data as requested by other parts of the application. This class is designed to work within the broader context management framework of the software.
 
 ## Exports
 - `class ContextQuery`

@@ -3,7 +3,7 @@
 > Path: `plugin-wiki/src/analyzers/typescript`
 
 ## Overview
-The directory is part of the `plugin-wiki` project and contains the `TypeScriptAnalyzer` class, which is responsible for analyzing TypeScript code. It includes the `extractExports` function, used to extract exported symbols from TypeScript files. The function is located in the `queries` subdirectory under `plugin-wiki/src/analyzers/typescript/queries`.
+The directory is part of the `plugin-wiki` project and contains TypeScript analysis tools. It includes the `TypeScriptAnalyzer` class, which is used to analyze TypeScript code, and the `extractExports` function, which is a query utility within the analyzer module. The `queries` subdirectory holds helper functions for extracting export information from TypeScript files.
 
 ## Children
 - [TypeScriptAnalyzer](./TypeScriptAnalyzer.md)

@@ -3,7 +3,7 @@
 > Path: `plugin-wiki/src/pipeline/ValidatePipeline`
 
 ## Overview
-The `ValidatePipeline` class in the `plugin-wiki/src/pipeline/ValidatePipeline` module is responsible for validating the structure and content of a pipeline configuration. It ensures that all required fields are present and conform to expected types and formats. This class is used to perform pre-execution checks to prevent invalid pipeline setups.
+The `ValidatePipeline` class in the `plugin-wiki/src/pipeline/ValidatePipeline` module is responsible for validating data as it flows through a pipeline. It ensures that all inputs meet specified criteria before proceeding to subsequent processing steps. This class provides methods for schema validation, data type checks, and error handling within the pipeline workflow.
 
 ## Exports
 - `class ValidatePipeline`

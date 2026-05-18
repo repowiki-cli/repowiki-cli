@@ -3,7 +3,7 @@
 > Path: `plugin-wiki/src/providers/AnthropicProvider`
 
 ## Overview
-The `AnthropicProvider` class in the `plugin-wiki/src/providers/AnthropicProvider` module serves as an interface for interacting with Anthropic's AI services. It provides methods for sending prompts and receiving responses from Anthropic's models. This class is designed to integrate with the broader plugin system, enabling wiki-related functionalities through external AI capabilities.
+The `AnthropicProvider` class in the `plugin-wiki/src/providers/AnthropicProvider` module serves as a bridge to integrate with Anthropic's API, enabling the use of their large language models within the application. It handles authentication, request formatting, and response parsing for interactions with Anthropic services. This provider is designed to be used by other parts of the codebase that require AI-powered text generation or analysis capabilities.
 
 ## Exports
 - `class AnthropicProvider`

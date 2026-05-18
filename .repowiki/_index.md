@@ -3,7 +3,7 @@
 > Path: `repowiki-cli-monorepo`
 
 ## Overview
-This project node represents a monorepo for the Repowiki ecosystem, which provides modular wiki functionality through a core library and extensible plugins. It includes the CLI tool (`repowiki-cli`), the core engine (`@repowiki/core`), and specialized plugins such as `@repowiki/plugin-context`, `@repowiki/plugin-spec`, and `@repowiki/plugin-wiki`—the latter enabling integrated wiki features within larger applications.
+The project is a TypeScript-based toolset for the Repowiki application, organized into multiple packages. It includes `repowiki-cli` for command-line interaction, `@repowiki/core` for essential interfaces and configurations, `@repowiki/plugin-context` for managing plugin contexts, `@repowiki/plugin-spec` for defining plugin specifications, and `@repowiki/plugin-wiki` as the core wiki plugin module. Together, these packages enable a modular and extensible wiki-based development environment.
 
 ## Children
 - [repowiki-cli](./repowiki-cli/_index.md)

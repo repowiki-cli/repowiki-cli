@@ -3,7 +3,7 @@
 > Path: `plugin-wiki/src/backends/LocalMarkdownBackend`
 
 ## Overview
-The `LocalMarkdownBackend` class provides a backend implementation for managing wiki content stored as local Markdown files. It handles reading, writing, and listing Markdown documents from the filesystem, enabling offline or locally-hosted wiki functionality.
+The `LocalMarkdownBackend` class in the `plugin-wiki/src/backends/LocalMarkdownBackend` module is responsible for handling markdown content stored locally. It provides methods to read, parse, and serve markdown files within the application. This backend is designed to work with local file systems and is typically used in environments where content is not sourced from a remote API.
 
 ## Exports
 - `class LocalMarkdownBackend`

@@ -3,7 +3,7 @@
 > Path: `core`
 
 ## Overview
-The `node` package in the TypeScript project serves as a core module for the repowiki application. It includes the `index` module from `core/src/index`, which defines foundational interfaces essential for the application's structure and functionality. This package provides the base definitions used throughout the codebase.
+This package serves as the core module of the application, defining essential interfaces and configurations. It includes types such as `ChatMessage`, `WikiNode`, `LLMProvider`, `OutputBackend`, `Analyzer`, and `RepowikiConfig` that are used across the codebase. The main entry point is `core/src/index`, which exports these core definitions for external use.
 
 ## Children
 - [index](./src/index.md)
