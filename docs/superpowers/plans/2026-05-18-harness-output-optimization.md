@@ -4,7 +4,7 @@
 
 **Goal:** Replace the per-file module table written by `ClaudeCodeHarness` and `CursorHarness` with a compact package/directory architecture tree, eliminating context window bloat for large projects.
 
-**Architecture:** Both harness classes gain two private helpers — `firstSentence()` and `buildArchitectureLines()` — that extract package/directory nodes from the tree, sort them, and render them as padded lines. The `generate()` method is rewritten to use these helpers; the `HarnessGenerator` interface and all call sites are unchanged.
+**Architecture:** Both harness classes gain two module-level helpers — `firstSentence()` and `buildArchitectureLines()` — that extract package/directory nodes from the tree, sort them, and render them as padded lines. The `generate()` method is rewritten to use these helpers; the `HarnessGenerator` interface and all call sites are unchanged. The helpers are duplicated in each harness file rather than extracted to a shared module — this is intentional per the spec's scope (YAGNI; the spec only modifies the two harness files).
 
 **Tech Stack:** TypeScript (NodeNext modules), Vitest, Yarn 4 workspaces.
 
@@ -24,6 +24,21 @@
 
 **Files:**
 - Modify: `packages/plugin-wiki/src/harness/__tests__/harness.test.ts`
+
+- [ ] **Step 0: Confirm the test file contains exactly three describe blocks**
+
+```bash
+grep -n "^describe(" packages/plugin-wiki/src/harness/__tests__/harness.test.ts
+```
+
+Expected output (3 lines):
+```
+13:describe('HarnessWriter', () => {
+100:describe('ClaudeCodeHarness', () => {
+123:describe('CursorHarness', () => {
+```
+
+If there are additional describe blocks not listed above, do not proceed — the plan only replaces the `ClaudeCodeHarness` and `CursorHarness` blocks and would silently discard others.
 
 - [ ] **Step 1: Replace `mockRoot` fixture and add `flatRoot`**
 
@@ -95,7 +110,7 @@ const flatRoot: AnalyzedNode = {
 
 - [ ] **Step 2: Rewrite `ClaudeCodeHarness` describe block**
 
-Replace the entire `describe('ClaudeCodeHarness', ...)` block (lines 100–121):
+Replace the entire `describe('ClaudeCodeHarness', ...)` block (locate it by the `describe('ClaudeCodeHarness'` string — line numbers shift after Step 1):
 
 ```typescript
 describe('ClaudeCodeHarness', () => {
@@ -144,7 +159,7 @@ describe('ClaudeCodeHarness', () => {
 
 - [ ] **Step 3: Rewrite `CursorHarness` describe block**
 
-Replace the entire `describe('CursorHarness', ...)` block (lines 123–136):
+Replace the entire `describe('CursorHarness', ...)` block (locate it by the `describe('CursorHarness'` string):
 
 ```typescript
 describe('CursorHarness', () => {
@@ -248,7 +263,7 @@ ${archLines.join('\n')}
 yarn workspace @repowiki/plugin-wiki vitest run src/harness/__tests__/harness.test.ts --reporter=verbose
 ```
 
-Expected: all `ClaudeCodeHarness` tests (4) **PASS**; `CursorHarness` tests still **FAIL** because the fixture changed. This is expected — do not commit yet; both harnesses must pass before committing the shared test file.
+Expected: the command exits **non-zero** (some tests fail) — this is intentional at this step. Inspect the verbose output to confirm: all 4 `ClaudeCodeHarness` tests show `✓` and all `CursorHarness` content tests show `✗` (because `CursorHarness` still generates a module table). Do not treat the non-zero exit as an error requiring diagnosis — do not commit yet; both harnesses must pass before committing the shared test file.
 
 ---
 
@@ -315,7 +330,7 @@ ${archLines.join('\n')}
 yarn workspace @repowiki/plugin-wiki vitest run src/harness/__tests__/harness.test.ts --reporter=verbose
 ```
 
-Expected: all 12 tests **PASS** (5 `HarnessWriter` + 4 `ClaudeCodeHarness` + 3 `CursorHarness`).
+Expected: all 12 tests **PASS** (5 `HarnessWriter` — unchanged, already passing — + 4 `ClaudeCodeHarness` + 3 `CursorHarness`). If the actual total differs, count the `HarnessWriter` describe block in the test file to reconcile.
 
 - [ ] **Step 3: Run full test suite — confirm no regressions**
 
@@ -340,6 +355,11 @@ git commit -m "feat(plugin-wiki): replace module table with architecture tree in
 - Create: `.changeset/<slug>.md`
 
 - [ ] **Step 1: Create the changeset file**
+
+First verify no file with that name exists:
+```bash
+ls .changeset/harness-architecture-tree.md 2>/dev/null && echo "EXISTS — delete it first" || echo "OK to create"
+```
 
 Create `.changeset/harness-architecture-tree.md`:
 
