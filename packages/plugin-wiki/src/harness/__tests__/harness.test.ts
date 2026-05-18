@@ -160,9 +160,7 @@ describe('ClaudeCodeHarness', () => {
     expect(content).not.toContain('packages/plugin-wiki/src/index');
     expect(content).not.toContain('my-project');
     // — separators are aligned at the same column
-    const archLines = content
-      .split('\n')
-      .filter((l) => l.startsWith('`'));
+    const archLines = content.split('\n').filter((l) => l.startsWith('`'));
     const dashPositions = archLines.map((l) => l.indexOf(' — '));
     expect(new Set(dashPositions).size).toBe(1);
   });
