@@ -74,24 +74,60 @@ describe('HarnessWriter', () => {
 const mockRoot: AnalyzedNode = {
   type: 'project',
   path: 'my-project',
-  title: 'my-project',
+  title: 'My Project',
   summary: 'A great project.',
+  exports: [],
+  children: [
+    {
+      type: 'package',
+      path: 'packages/core',
+      title: 'core',
+      summary: 'Shared TypeScript interfaces. Zero runtime dependencies.',
+      exports: [],
+      children: [],
+    },
+    {
+      type: 'package',
+      path: 'packages/plugin-wiki',
+      title: 'plugin-wiki',
+      summary: 'Wiki generation pipeline. Analyze, summarize, render.',
+      exports: [],
+      children: [
+        {
+          type: 'directory',
+          path: 'packages/plugin-wiki/src',
+          title: 'src',
+          summary: 'Source files for the wiki plugin.',
+          exports: [],
+          children: [
+            {
+              type: 'module',
+              path: 'packages/plugin-wiki/src/index',
+              title: 'index',
+              summary: 'Entry point. The main module.',
+              exports: [{ kind: 'function', name: 'main' }],
+              children: [],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const flatRoot: AnalyzedNode = {
+  type: 'project',
+  path: 'flat-project',
+  title: 'Flat Project',
+  summary: 'A flat project.',
   exports: [],
   children: [
     {
       type: 'module',
       path: 'src/index',
       title: 'index',
-      summary: 'The main entry point. Exports core functions.',
-      exports: [{ kind: 'function', name: 'main' }],
-      children: [],
-    },
-    {
-      type: 'module',
-      path: 'src/utils',
-      title: 'utils',
-      summary: 'Utility helpers. Contains string manipulation.',
-      exports: [{ kind: 'const', name: 'VERSION' }],
+      summary: 'Entry point.',
+      exports: [],
       children: [],
     },
   ],
@@ -103,20 +139,40 @@ describe('ClaudeCodeHarness', () => {
     expect(h.targetFile('/some/repo')).toBe(path.join('/some/repo', 'CLAUDE.md'));
   });
 
-  it('generate includes project summary and module table', () => {
+  it('generate includes project summary and architecture section', () => {
     const h = new ClaudeCodeHarness();
     const content = h.generate(mockRoot);
     expect(content).toContain('A great project.');
-    expect(content).toContain('src/index');
-    expect(content).toContain('The main entry point.');
-    expect(content).toContain('src/utils');
+    expect(content).toContain('### Architecture');
+    expect(content).toContain('`packages/core`');
+    expect(content).toContain('`packages/plugin-wiki`');
+    expect(content).toContain('`packages/plugin-wiki/src`');
+    expect(content).toContain('Shared TypeScript interfaces.');
+    expect(content).toContain('Wiki generation pipeline.');
+    expect(content).toContain('Source files for the wiki plugin.');
+    expect(content).toContain('> For per-file summaries, see `.repowiki/`.');
     expect(content).not.toContain('<!-- repowiki:start -->');
   });
 
-  it('generate only lists module-type nodes', () => {
+  it('generate only lists package and directory nodes', () => {
     const h = new ClaudeCodeHarness();
     const content = h.generate(mockRoot);
-    expect(content.split('|').filter((s) => s.includes('my-project')).length).toBe(0);
+    expect(content).not.toContain('packages/plugin-wiki/src/index');
+    expect(content).not.toContain('my-project');
+    // — separators are aligned at the same column
+    const archLines = content
+      .split('\n')
+      .filter((l) => l.startsWith('`'));
+    const dashPositions = archLines.map((l) => l.indexOf(' — '));
+    expect(new Set(dashPositions).size).toBe(1);
+  });
+
+  it('generate omits Architecture section when no package or directory nodes exist', () => {
+    const h = new ClaudeCodeHarness();
+    const content = h.generate(flatRoot);
+    expect(content).toContain('A flat project.');
+    expect(content).not.toContain('### Architecture');
+    expect(content).not.toContain('> For per-file summaries');
   });
 });
 
@@ -126,11 +182,23 @@ describe('CursorHarness', () => {
     expect(h.targetFile('/some/repo')).toBe(path.join('/some/repo', '.cursorrules'));
   });
 
-  it('generate includes project summary and module table', () => {
+  it('generate includes project summary and architecture section', () => {
     const h = new CursorHarness();
     const content = h.generate(mockRoot);
     expect(content).toContain('A great project.');
-    expect(content).toContain('src/index');
+    expect(content).toContain('## Architecture');
+    expect(content).toContain('`packages/core`');
+    expect(content).toContain('`packages/plugin-wiki/src`');
+    expect(content).toContain('Shared TypeScript interfaces.');
+    expect(content).toContain('> For per-file summaries, see `.repowiki/`.');
     expect(content).not.toContain('<!-- repowiki:start -->');
+  });
+
+  it('generate omits Architecture section when no package or directory nodes exist', () => {
+    const h = new CursorHarness();
+    const content = h.generate(flatRoot);
+    expect(content).toContain('A flat project.');
+    expect(content).not.toContain('## Architecture');
+    expect(content).not.toContain('> For per-file summaries');
   });
 });

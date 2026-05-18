@@ -2,25 +2,46 @@ import * as path from 'node:path';
 import type { AnalyzedNode, HarnessGenerator } from '../types.js';
 import { collectNodes } from '../types.js';
 
+function firstSentence(summary: string): string {
+  const match = summary.match(/^.*?\.(?=\s|$)/);
+  const s = (match ? match[0] : summary).trim();
+  return s || '(no summary)';
+}
+
+function buildArchitectureLines(root: AnalyzedNode): string[] {
+  const nodes = [
+    ...collectNodes(root, 'package'),
+    ...collectNodes(root, 'directory'),
+  ].sort((a, b) => a.path.localeCompare(b.path));
+
+  if (nodes.length === 0) return [];
+
+  const backtickPaths = nodes.map((n) => `\`${n.path}\``);
+  const maxLen = Math.max(...backtickPaths.map((s) => s.length));
+  return nodes.map((n, i) => `${backtickPaths[i].padEnd(maxLen + 2)} — ${firstSentence(n.summary)}`);
+}
+
 export class CursorHarness implements HarnessGenerator {
   targetFile(repoPath: string): string {
     return path.join(repoPath, '.cursorrules');
   }
 
   generate(root: AnalyzedNode): string {
-    const modules = collectNodes(root, 'module').sort((a, b) => a.path.localeCompare(b.path));
-    const rows = modules.map((m) => `| \`${m.path}\` | ${m.summary.split('.')[0]}.  |`).join('\n');
-
-    return `# RepoWiki Context
+    const archLines = buildArchitectureLines(root);
+    const header = `# RepoWiki Context
 
 When working in this codebase, use the following context:
 
 ## Project Overview
-${root.summary}
+${root.summary}`;
 
-## Key Modules
-| Path | Description |
-|------|-------------|
-${rows}`;
+    if (archLines.length === 0) return header;
+
+    return `${header}
+
+## Architecture
+${archLines.join('\n')}
+
+> For per-file summaries, see \`.repowiki/\`.`;
   }
 }
