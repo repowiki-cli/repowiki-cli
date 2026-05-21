@@ -23,7 +23,7 @@
     "prepack": "yarn build"
   },
   "dependencies": {
-    "@oclif/core": "^4.0.0",
+    "@oclif/core": "^4.11.3",
     "@repowiki/plugin-context": "workspace:*",
     "@repowiki/plugin-spec": "workspace:*",
     "@repowiki/plugin-wiki": "workspace:*"
