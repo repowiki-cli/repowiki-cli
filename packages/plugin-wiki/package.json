@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.96.0",
-    "@oclif/core": "^4.0.0",
+    "@oclif/core": "^4.11.3",
     "@repowiki/core": "workspace:*",
     "dotenv": "^16.0.0",
     "fast-glob": "^3.3.0",

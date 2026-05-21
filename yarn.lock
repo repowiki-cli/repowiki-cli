@@ -498,9 +498,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@oclif/core@npm:^4.0.0":
-  version: 4.11.2
-  resolution: "@oclif/core@npm:4.11.2"
+"@oclif/core@npm:^4.11.3":
+  version: 4.11.3
+  resolution: "@oclif/core@npm:4.11.3"
   dependencies:
     ansi-escapes: "npm:^4.3.2"
     ansis: "npm:^3.17.0"
@@ -516,11 +516,11 @@ __metadata:
     semver: "npm:^7.8.0"
     string-width: "npm:^4.2.3"
     supports-color: "npm:^8"
-    tinyglobby: "npm:^0.2.14"
+    tinyglobby: "npm:^0.2.16"
     widest-line: "npm:^3.1.0"
     wordwrap: "npm:^1.0.0"
     wrap-ansi: "npm:^7.0.0"
-  checksum: 10c0/fc5b33102dd5a23f0340a5bbe23598eeaf798f20de060b7109516a968c3053cb71f78773bda44b47c84aff3b9cff5e0c0a54c8a104c6a6b2cb5e9d92d2152377
+  checksum: 10c0/9db03618a00ef1223c8e13cb97e24215cf750771c026ed6a93813e00c44347b14dca61f948d8c88830e2e5ea51425e6f0885787874520de1ff097a0e5a3d4117
   languageName: node
   linkType: hard
 
@@ -544,7 +544,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@repowiki/plugin-context@workspace:packages/plugin-context"
   dependencies:
-    "@oclif/core": "npm:^4.0.0"
+    "@oclif/core": "npm:^4.11.3"
     "@repowiki/core": "workspace:*"
     typescript: "npm:^6.0.3"
     vitest: "npm:^4.1.6"
@@ -555,7 +555,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@repowiki/plugin-spec@workspace:packages/plugin-spec"
   dependencies:
-    "@oclif/core": "npm:^4.0.0"
+    "@oclif/core": "npm:^4.11.3"
     "@repowiki/core": "workspace:*"
     typescript: "npm:^6.0.3"
     vitest: "npm:^4.1.6"
@@ -567,7 +567,7 @@ __metadata:
   resolution: "@repowiki/plugin-wiki@workspace:packages/plugin-wiki"
   dependencies:
     "@anthropic-ai/sdk": "npm:^0.96.0"
-    "@oclif/core": "npm:^4.0.0"
+    "@oclif/core": "npm:^4.11.3"
     "@repowiki/core": "workspace:*"
     "@types/node": "npm:^25.7.0"
     dotenv: "npm:^16.0.0"
@@ -2027,7 +2027,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "repowiki-cli@workspace:packages/cli"
   dependencies:
-    "@oclif/core": "npm:^4.0.0"
+    "@oclif/core": "npm:^4.11.3"
     "@repowiki/plugin-context": "workspace:*"
     "@repowiki/plugin-spec": "workspace:*"
     "@repowiki/plugin-wiki": "workspace:*"
@@ -2290,7 +2290,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tinyglobby@npm:^0.2.12, tinyglobby@npm:^0.2.14, tinyglobby@npm:^0.2.15, tinyglobby@npm:^0.2.16":
+"tinyglobby@npm:^0.2.12, tinyglobby@npm:^0.2.15, tinyglobby@npm:^0.2.16":
   version: 0.2.16
   resolution: "tinyglobby@npm:0.2.16"
   dependencies:
